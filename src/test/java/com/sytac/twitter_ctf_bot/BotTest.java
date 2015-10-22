@@ -1,10 +1,10 @@
-package com.sytac.twittercacher;
+package com.sytac.twitter_ctf_bot;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class HbcTest {
+public class BotTest {
 
 	@Test
 	public void test() {

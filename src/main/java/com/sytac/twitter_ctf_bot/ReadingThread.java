@@ -14,17 +14,21 @@ import com.twitter.hbc.core.Hosts;
 public class ReadingThread extends Thread{
 
 	final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-	static int message_count = 0;
+	final static String WELCOME_MESSAGE_PARTICIPANT = "Welcome to the Capture the flag competition from the Sytac team, have fun!";
+	final static String RIGHT_ANSWER_MESSAGE = "Great!";
+	final static String WRONG_ANSWER_MESSAGE = "Too Bad :/";
 	
 	
 	Hosts _hosebirdHosts;
 	BlockingQueue<String> _msgQueue;
 	Client _hosebirdClient;
-
-	public ReadingThread(Hosts hosebirdHosts, BlockingQueue<String> msgQueue, Client hosebirdClient){
+	Integer _partecipantsCount;
+	
+	public ReadingThread(Hosts hosebirdHosts, BlockingQueue<String> msgQueue, Client hosebirdClient, Integer partecipantsNumber){
 		_hosebirdClient = hosebirdClient;
 		_msgQueue = msgQueue;
 		_hosebirdClient = hosebirdClient;
+		_partecipantsCount = partecipantsNumber;
 	}
 	
 	 public void run(){
@@ -51,17 +55,42 @@ public class ReadingThread extends Thread{
 			//Marshalling of the JSON
 			node = mapper.readTree(json);
 			JsonNode mention = node.path("entities").path("user_mentions");
-			JsonNode text_mention = node.path("text");
+			JsonNode mention_text = node.path("text");
 			JsonNode direct_message = node.path("direct_message").path("text");
-			if(!direct_message.isValueNode()){
+			if(mention.isValueNode() && mention_text.isValueNode()){ //case of mention
+				_partecipantsCount++;
+				LOGGER.info("Received message: "+ mention_text.getTextValue());
+				JsonNode participant = node.path("user");
+				followParticipant(participant);
+				DM(participant.path("id").getTextValue(), WELCOME_MESSAGE_PARTICIPANT);
+			}else if(direct_message.isValueNode()){
+				//HANDLE DM
+			}else{
 				LOGGER.warn("The JSON received isn't a well formed DM");
 				return;
 			}
+
 			//DO SOMETHING WITH THE RECEIVED MESSAGE
 	        System.out.println(direct_message.getTextValue());
-	        message_count++;
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}    
 	 }
+	 
+	 
+	 private void followParticipant(JsonNode participant){
+		String idParticipant = participant.path("id").getTextValue();
+		
+	 }
+	 
+	 private boolean DM(String idUser, String message){
+		 return false;
+	 }
+	 
+	 private boolean processAnswerToQuiz(String quizNr, String answer){	 
+		 //HTTP CALL TO A REMOTE REST SERVICE
+		 return false;
+	 }
+	 
+	 
 }

@@ -25,9 +25,12 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 
 
 public class Bot {
-	private static Client hosebirdClient;
+	
 	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 	private static final Properties CONF_FILE = new Properties();
+	
+	private static Client hosebirdClient;
+	private static Integer participantNumber;
 	
 	public Bot(){}
 	
@@ -36,7 +39,9 @@ public class Bot {
             @Override
             public void run(){
                 LOGGER.info("Shutdown hook catched, closing the hosebirdClient");
+                LOGGER.info("TOTAL NUMBER OF PARTECIPANTS FOR THIS SESSIO: " + participantNumber);
                 hosebirdClient.stop();
+                
             }
         });
 		
@@ -75,7 +80,7 @@ public class Bot {
 			// Attempts to establish a connection.
 			hosebirdClient.connect();
 			//Run the Thread that will consume the User-stream
-			new ReadingThread(hosebirdHosts, msgQueue, hosebirdClient).start();
+			new ReadingThread(hosebirdHosts, msgQueue, hosebirdClient, participantNumber).start();
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Closing the connection...");
