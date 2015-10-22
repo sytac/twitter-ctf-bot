@@ -8,7 +8,7 @@ Automate twitter DM handling, re-follow, and more via hbc-lib. and the twitter [
 
 
 
-## Features/TODO:
+## DONE/TBD:
 
 - [x] Fetch DM
 - [x] Fetch mentions
