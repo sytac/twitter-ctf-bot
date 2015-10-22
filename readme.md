@@ -1,6 +1,8 @@
 # twitter-ctf-bot
-A Java-bot to automate twitter DM handling, re-follow, and more through hbc-lib. and the twitter [Streaming API](https://dev.twitter.com/streaming/overview).
-[REST-API](https://dev.twitter.com/rest/public) using [twitter4j](https://github.com/yusuke/twitter4j/).
+A Twitter bot written in Java to manage a Capture The Flag competition.
+###Features:
+Automate twitter DM handling, re-follow, and more via hbc-lib. and the twitter [Streaming API](https://dev.twitter.com/streaming/overview).
+[REST-API](https://dev.twitter.com/rest/public) via [twitter4j](https://github.com/yusuke/twitter4j/).
 
 ##### New:
 
