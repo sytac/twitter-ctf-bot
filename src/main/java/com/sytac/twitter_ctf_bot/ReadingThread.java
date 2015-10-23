@@ -1,6 +1,7 @@
 package com.sytac.twitter_ctf_bot;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 
 import org.codehaus.jackson.JsonNode;
@@ -19,10 +20,11 @@ public class ReadingThread extends Thread{
 
 	final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 	final static String WELCOME_MESSAGE_PARTICIPANT = "Welcome to the Capture the flag competition from the Sytac team, have fun!";
-	final static String COULDNOT_FOLLOW_MESSAGE = "Seems you were already signed to the Capture the flag competition";
+	final static String COULDNOT_FOLLOW_MESSAGE = "To participate to the Sytac Capture the Flag competition you must mention us as following:\"@sytac #ctf\"";
 	final static String RIGHT_ANSWER_MESSAGE = "Great!";
 	final static String WRONG_ANSWER_MESSAGE = "Too Bad :/";
 	final static String WINNER_MESSAGE = "Congratulations, you are the winner of an amazing Parrot AR Drone 2.0!";
+	final static String BAD_MESSAGE = "The message is not well formed; please respect the template #ctf \"ANSWER\" (without quotes)";
 	
 	final static String TWITTER_DM_ENDPOINT = "https://api.twitter.com/1.1/direct_messages/new.json";
 	final static String SYTAC_REST_ENDPOINT = "http://sytac.io/ctf.do";
@@ -30,20 +32,29 @@ public class ReadingThread extends Thread{
 	final static String PARTIC_ID_KEY = "partecipantId";
 	final static String PARTIC_NAME_KEY = "partecipantName";
 	
-	final static long SYTAC_USER_ID = 194054816;
+	static long SYTAC_USER_ID;
 	
 	Hosts _hosebirdHosts;
 	BlockingQueue<String> _msgQueue;
 	Client _hosebirdClient;
 	Twitter _twitter4jClient;
 	Integer _partecipantsCount;
+	Properties _propFile;
 	
-	public ReadingThread(Hosts hosebirdHosts, BlockingQueue<String> msgQueue, Client hosebirdClient, Twitter twitter4jClient, Integer partecipantsNumber){
+	public ReadingThread(Hosts hosebirdHosts, BlockingQueue<String> msgQueue, Client hosebirdClient,
+			Twitter twitter4jClient, Integer partecipantsNumber, Properties propFile) {
+		
 		_hosebirdClient = hosebirdClient;
 		_msgQueue = msgQueue;
 		_hosebirdClient = hosebirdClient;
 		_partecipantsCount = partecipantsNumber;
 		_twitter4jClient = twitter4jClient;
+		_propFile = propFile;
+		try{
+			SYTAC_USER_ID = Long.valueOf(_propFile.getProperty("ownerUserId"));
+		}catch(Exception e){
+			LOGGER.error("error during the extraction of the ownerUserId field from the PROP_FILE");
+		}
 	}
 	
 	
@@ -71,24 +82,26 @@ public class ReadingThread extends Thread{
 	  * @param json
 	  */
 	 private void processMessage(String json){
-		LOGGER.debug(json); //SET TO DEBUG!!!!
+		LOGGER.info(json); //SET TO DEBUG!!!!
         ObjectMapper mapper = new ObjectMapper();
 		try {
-			//Unmarshalling of the JSON
+			//Unmarshalling of the JSON and getting all the possible useful nodes
 			JsonNode node = mapper.readTree(json);
+			
 			JsonNode mention = node.path("entities").path("user_mentions");
 			JsonNode mention_text = node.path("text");
 			JsonNode direct_msg = node.path("direct_message").path("text");
-			String direct_msgStr = direct_msg.getTextValue();
 			JsonNode direct_msg_senderId = node.path("direct_message").path("sender").path("id");
-			JsonNode name = node.path("direct_message").path("sender").path("screen_name");
+			JsonNode direct_msg_name = node.path("direct_message").path("sender").path("screen_name");
 			JsonNode event_node = node.path("event");
 			JsonNode participant = node.path("user");
+			JsonNode participant_name = node.path("user").path("screen_name");
+			String direct_msgStr = direct_msg.getTextValue();
 			
 			if(event_node.isMissingNode() && //if the event node is not present in the message
 				!mention.isMissingNode() && //if mention node is present in the message
-				mention_text.isValueNode() && //if mention text is present in the message
-				mention_text.getTextValue().toLowerCase().contains("#ctf")) //if mention text contains the CTF flag
+				mention_text.isValueNode() && //if mention text is a value node
+				mention_text.getTextValue().toLowerCase().contains("#ctf")) //if mention text contains the "#ctf" flag
 			{ //CASE OF A MENTION: try to follow the user and add him to the participants	
 				LOGGER.info("Received mention: " + mention_text.getTextValue());		
 				//follow the participant
@@ -96,13 +109,22 @@ public class ReadingThread extends Thread{
 				// send him/her a welcome DM or a DM informing he's/she's already in the competition
 				dm(participant.path("id").getLongValue(), followSuccess ? WELCOME_MESSAGE_PARTICIPANT : COULDNOT_FOLLOW_MESSAGE); 
 				if(followSuccess) _partecipantsCount++;
+				LOGGER.info("New Participant: " + participant_name.getTextValue());	
 			}else if(direct_msg.isValueNode() && //if the direct_msg node is present in the message
-					direct_msgStr.toLowerCase().startsWith("#ctf") && //if direct_msg contains the CTF flag
+					direct_msgStr.toLowerCase().contains("#ctf") && //if direct_msg contains the CTF flag
 					!direct_msg_senderId.isMissingNode() && //if direct_msg_senderId is present in the message
 					direct_msg_senderId.getLongValue() != SYTAC_USER_ID) //if the received message is not an echo message (message from Sytac itself) 
 			{ //CASE of a DM for the competition
-				boolean ok = processAnswerToRemote((direct_msgStr.toLowerCase().split("#ctf")[1]).trim(), name.getTextValue(), direct_msg_senderId.getLongValue());
-				dm(participant.path("id").getLongValue(), ok ? RIGHT_ANSWER_MESSAGE : WRONG_ANSWER_MESSAGE); 
+				String answer[] = direct_msgStr.toLowerCase().split("#ctf");
+				if(answer.length < 1){
+					LOGGER.warn("The JSON received isn't a #ctf well formed message: " + node.toString());
+					dm(direct_msg_senderId.path("id").getLongValue(), BAD_MESSAGE);
+					return;
+				}
+				//if (answer!= null) answer = answer[1].trim();
+				boolean ok = processAnswerToRemote(answer[1], direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue());
+				dm(direct_msg_senderId.path("id").getLongValue(), ok ? RIGHT_ANSWER_MESSAGE : WRONG_ANSWER_MESSAGE); 
+				System.out.println("New participant: " + participant_name.getTextValue() + " ID: "+ participant.path("id").getLongValue());
 			}else{ //OTHER MESSAGES RECEIVED: skip them
 				LOGGER.warn("The JSON received isn't a ctf-related message: " + node.toString());
 				return;

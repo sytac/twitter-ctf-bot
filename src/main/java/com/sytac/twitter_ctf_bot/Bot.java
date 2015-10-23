@@ -75,7 +75,7 @@ public class Bot {
 			initializeTwit4j(consumerKey, consumerSecret, token, secret);
 			
 			hosebirdClient.connect();// Attempts to establish a connection to the Sytac's user stream.
-			new ReadingThread(hosebirdHosts, msgQueue, hosebirdClient, twitter4jClient, participantNumber).start(); //Run the Thread that will consume the User-stream
+			new ReadingThread(hosebirdHosts, msgQueue, hosebirdClient, twitter4jClient, participantNumber, CONF_FILE).start(); //Run the Thread that will consume the User-stream
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encoutered, closing the connection...");
