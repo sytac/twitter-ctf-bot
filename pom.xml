@@ -7,14 +7,12 @@
   
   <dependencies>
   
-  	<!--  TWITTER4J not used for now (REST) 
+  	<!--  TWITTER4J not used for now (REST) -->
       <dependency>
          <groupId>org.twitter4j</groupId>
          <artifactId>twitter4j-core</artifactId>
          <version>[4.0,)</version>
      </dependency>
-     -->
-     
      
      <!--  TWITTER HBC -->
      <dependency>
@@ -46,11 +44,19 @@
   		<artifactId>jackson-core-asl</artifactId>
   		<version>1.9.13</version>
 	</dependency>
+	
 	<!-- LOGGING -->
 	<dependency>
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-simple</artifactId>
 		<version>1.7.12</version>
+	</dependency>
+	
+	<!--  EASE FOR HTTP-GET / HTTP-POST sending -->
+	<dependency>
+	    <groupId>com.mashape.unirest</groupId>
+	    <artifactId>unirest-java</artifactId>
+	    <version>1.4.7</version>
 	</dependency>
     
   </dependencies>
