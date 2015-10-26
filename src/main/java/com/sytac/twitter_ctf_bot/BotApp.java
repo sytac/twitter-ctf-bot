@@ -61,6 +61,9 @@ public class BotApp {
     /**
      * Initialize the HoseBird Client (STREAMING-API part)
      *
+     * @param config The application configuration
+     * @param queue  The queue in which messages are put before processing
+     * @return The configured Twitter Stream client
      */
     private static Client initializeHBC(Configuration config, BlockingQueue<String> queue) {
         /** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
@@ -86,6 +89,9 @@ public class BotApp {
 
     /**
      * Initialize the Twitter4j Client instance (REST-API part)
+     *
+     * @param config The application configuration
+     * @return The configured Twitter4j client
      */
     private static Twitter initializeTwit4j(Configuration config) {
         ConfigurationBuilder cb = new ConfigurationBuilder();

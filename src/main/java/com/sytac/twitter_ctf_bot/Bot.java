@@ -26,7 +26,6 @@ public class Bot {
     private final Client hosebirdClient;
     private Integer participantNumber = 0;
     private final Twitter twitter;
-    private ReadingThread reader;
 
     public Bot(Configuration configuration, Twitter twitterClient, Client streamClient, BlockingQueue<String> queue) {
         this.config = configuration;
@@ -41,7 +40,7 @@ public class Bot {
             gracefulShutdown();
 
             hosebirdClient.connect(); // Attempts to establish a connection to the Sytac's user stream.
-            reader = new ReadingThread(queue, hosebirdClient, twitter, participantNumber, config);
+            ReadingThread reader = new ReadingThread(queue, hosebirdClient, twitter, participantNumber, config);
             new Thread(reader).start(); //Run the Thread that will consume the User-stream
 
             // TODO: process messages in an infinite loop here..
