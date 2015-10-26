@@ -29,9 +29,9 @@ public class Bot {
 	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 	private static final Properties CONF_FILE = new Properties();
 	
-	private static Client hosebirdClient;
-	private static Integer participantNumber = 0;
-	private static Twitter twitter4jClient;
+	private Client hosebirdClient;
+	private Integer participantNumber = 0;
+	private Twitter twitter4jClient;
 	
 	public void run(String path){
 		//ShutDownHook to catch the SIGING when terminating the process.
