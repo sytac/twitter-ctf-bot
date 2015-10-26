@@ -1,16 +1,5 @@
 package com.sytac.twitter_ctf_bot;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.mashape.unirest.http.Unirest;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -21,14 +10,20 @@ import com.twitter.hbc.core.endpoint.UserstreamEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-
-
-
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Bot {
 	
@@ -142,9 +137,29 @@ public class Bot {
 			return;
 		}
 	}
-	
-	
+
+
+	/**
+	 * Reads the configuration file location from the program arguments and starts the process
+	 *
+	 * @param args Should only contain one entry, the configuration file path
+	 */
 	public static void main(String[] args) {
-		new Bot().run(args[0]);
-	}	
+		String configFile = args[0];
+		if(fileExists(configFile)) {
+			new Bot().run(configFile);
+		} else {
+			LOGGER.error("No configuration file found at location: {}", configFile);
+		}
+	}
+
+	/**
+	 * Validates whether a file exists at the given
+	 *
+	 * @param path The path to validate
+	 * @return True if the path exists
+	 */
+	private static boolean fileExists(String path) {
+		return new File(path).isFile();
+	}
 }
