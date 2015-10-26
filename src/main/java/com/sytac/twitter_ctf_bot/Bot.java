@@ -16,7 +16,6 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -34,7 +33,7 @@ public class Bot {
 	private static Integer participantNumber = 0;
 	private static Twitter twitter4jClient;
 	
-	private void run(String path){
+	public void run(String path){
 		//ShutDownHook to catch the SIGING when terminating the process.
 		Runtime.getRuntime().addShutdownHook(new Thread(){
             @Override
@@ -136,30 +135,5 @@ public class Bot {
 			LOGGER.error("Error while reading the properties file: "+ path, e);
 			return;
 		}
-	}
-
-
-	/**
-	 * Reads the configuration file location from the program arguments and starts the process
-	 *
-	 * @param args Should only contain one entry, the configuration file path
-	 */
-	public static void main(String[] args) {
-		String configFile = args[0];
-		if(fileExists(configFile)) {
-			new Bot().run(configFile);
-		} else {
-			LOGGER.error("No configuration file found at location: {}", configFile);
-		}
-	}
-
-	/**
-	 * Validates whether a file exists at the given
-	 *
-	 * @param path The path to validate
-	 * @return True if the path exists
-	 */
-	private static boolean fileExists(String path) {
-		return new File(path).isFile();
 	}
 }
