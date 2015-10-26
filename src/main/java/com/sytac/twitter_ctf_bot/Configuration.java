@@ -14,6 +14,13 @@ import java.util.Properties;
  */
 public class Configuration {
 
+    // Known configuration entries:
+    private static final String CONSUMER_KEY    = "consumerKey";
+    private static final String CONSUMER_SECRET = "consumerSecret";
+    private static final String TOKEN           = "token";
+    private static final String SECRET          = "secret";
+    private static final String OWN_USER_ID     = "ownUserId";
+
     private final Properties properties;
 
     /**
@@ -48,5 +55,50 @@ public class Configuration {
         properties.load(asStream);
 
         return properties;
+    }
+
+    /**
+     * Gets the consumer secret for the OAuth Twitter authentication
+     *
+     * @return The consumer secret
+     */
+    public String getConsumerSecret(){
+        return properties.getProperty(CONSUMER_SECRET);
+    }
+
+    /**
+     * Gets the token for the OAuth Twitter authentication
+     *
+     * @return The token
+     */
+    public String getToken() {
+        return properties.getProperty(TOKEN);
+    }
+
+    /**
+     * Gets the consumer key for the OAuth Twitter authentication
+     *
+     * @return The consumer key
+     */
+    public String getConsumerKey() {
+        return properties.getProperty(CONSUMER_KEY);
+    }
+
+    /**
+     * Gets the secret for the OAuth Twitter authentication
+     *
+     * @return The secret
+     */
+    public String getSecret() {
+        return properties.getProperty(SECRET);
+    }
+
+    /**
+     * Gets the own twitter user ID
+     *
+     * @return The own user id
+     */
+    public String getOwnUserId(){
+        return properties.getProperty(OWN_USER_ID);
     }
 }

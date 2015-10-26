@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Application that bootstraps the Capture The Flag Twitter bot
@@ -23,10 +24,20 @@ public class BotApp {
     public static void main(String[] args) {
         String configFile = parseArguments(args);
         if(fileExists(configFile)) {
-            new Bot().run(configFile);
+            runBot(configFile);
         } else {
             LOGGER.error("No configuration file found at location: {}", configFile);
             throw new IllegalArgumentException();
+        }
+    }
+
+    private static void runBot(String configFile) {
+        Configuration configuration = null;
+        try {
+            configuration = new Configuration(configFile);
+            new Bot(configuration).run();
+        } catch (IOException e) {
+            LOGGER.error("The bot slipped on a glitch in the Matrix, exiting: {}", e.getMessage());
         }
     }
 

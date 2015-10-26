@@ -10,10 +10,9 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 
-public class ReadingThread extends Thread{
+public class ReadingThread implements Runnable {
 
 	final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 	final static String WELCOME_MESSAGE_PARTICIPANT = "Welcome to the Capture the flag competition from the Sytac team, have fun!";
@@ -28,19 +27,19 @@ public class ReadingThread extends Thread{
 	private final BlockingQueue<String> _msgQueue;
 	private final Client _hosebirdClient;
 	private final Twitter _twitter4jClient;
-	private final Properties _propFile;
+	private final Configuration _configuration;
 	private Integer _partecipantsCount = 0;
 
 	public ReadingThread(BlockingQueue<String> msgQueue, Client hosebirdClient,
-			Twitter twitter4jClient, Integer partecipantsNumber, Properties propFile) {
+			Twitter twitter4jClient, Integer partecipantsNumber, Configuration configuration) {
 		
 		_hosebirdClient = hosebirdClient;
 		_msgQueue = msgQueue;
 		_partecipantsCount = partecipantsNumber;
 		_twitter4jClient = twitter4jClient;
-		_propFile = propFile;
+		_configuration = configuration;
 		try{
-			SYTAC_USER_ID = Long.valueOf(_propFile.getProperty("ownerUserId"));
+			SYTAC_USER_ID = Long.valueOf(_configuration.getOwnUserId());
 		}catch(Exception e){
 			LOGGER.error("error during the extraction of the ownerUserId field from the PROP_FILE");
 		}
