@@ -11,56 +11,27 @@ import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 /**
- * Singleton class responsible of message's 
- * @author Tonino
+ * Parses Twitter stream messages
  *
+ * @author Tonino
  */
 public class Processor {
 	
-	final static Logger LOGGER = LoggerFactory.getLogger(Processor.class);
-	final private Twitter twitter4jClient = Bot.getTwit4jClient();
+	static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
+	private final Twitter twitter;
+	private final Configuration config;
 	
-	private static Processor instance = null;
-	protected Processor() {}  // Exists only to defeat instantiation.
-
-	
-
-	
-	public static Processor getInstance() {
-		if(instance == null) {
-			instance = new Processor();
-	    }
-	    return instance;
-	}
-	
-	
-	
-	/** User related parameters **/
-	private static final String WELCOME_PARTICIPANT_MESSAGE  = Bot.CONF_FILE.getProperty("WELCOME_PARTICIPANT_MESSAGE");
-	private static final String COULDNOT_FOLLOW_MESSAGE   = Bot.CONF_FILE.getProperty("COULDNOT_FOLLOW_MESSAGE");
-	private static final String RIGHT_ANSWER_MESSAGE  = Bot.CONF_FILE.getProperty("RIGHT_ANSWER_MESSAGE");
-	private static final String WRONG_ANSWER_MESSAGE  = Bot.CONF_FILE.getProperty("WRONG_ANSWER_MESSAGE");
-	private static final String WINNER_MESSAGE  = Bot.CONF_FILE.getProperty("WINNER_MESSAGE");
-	private static final String BAD_MESSAGE  = Bot.CONF_FILE.getProperty("BAD_MESSAGE");
-	private static final String WELCOME_NO_FOLLOW_MESSAGE = Bot.CONF_FILE.getProperty("WELCOME_NO_FOLLOW_MESSAGE");
-	
-	private static final String FLAG_KEYWORD = Bot.CONF_FILE.getProperty("FLAG_KEYWORD");
-	private static final long SYTAC_USER_ID = Long.valueOf(Bot.CONF_FILE.getProperty("SYTAC_USER_ID"));
-	
-	/** Endpoint-related parameters **/
-	private static final String TWITTER_DM_ENDPOINT = Bot.CONF_FILE.getProperty("TWITTER_DM_ENDPOINT");
-	private static final String SYTAC_REST_ENDPOINT = Bot.CONF_FILE.getProperty("SYTAC_REST_ENDPOINT");
-	private static final String FLAG_KEY = Bot.CONF_FILE.getProperty("FLAG_KEY");
-	private static final String PARTIC_ID_KEY = Bot.CONF_FILE.getProperty("PARTIC_ID_KEY");
-	private static final String PARTIC_NAME_KEY = Bot.CONF_FILE.getProperty("PARTIC_NAME_KEY");
-	
+	public Processor(Twitter twitter4jClient, Configuration configuration) {
+		this.twitter = twitter4jClient;
+        this.config = configuration;
+    }
 	
 	/**
 	  * The processing routine: handle mentions and DM receiving and answers
 	  * @param json
 	  */
 	 public void processMessage(String json){
-		LOGGER.info(json); //SET TO DEBUG!!!!
+		LOGGER.debug(json);
         ObjectMapper mapper = new ObjectMapper();
 		try {
 			JsonNode node = mapper.readTree(json);
@@ -93,14 +64,14 @@ public class Processor {
 				delete_node.isMissingNode() && //if the delete node is not present in the message
 				!mention.isMissingNode() && //if mention node is present in the message
 				mention_text.isValueNode() && //if mention text is a value node
-				mention_text.getTextValue().toLowerCase().contains(FLAG_KEYWORD) && //if mention text contains the "#ctf" flag
-				SYTAC_USER_ID != participant_id.getLongValue()) //if I am not the mention maker
+				mention_text.getTextValue().toLowerCase().contains(config.getFlagKeyword()) && //if mention text contains the "#ctf" flag
+				config.getOwnUserId() != participant_id.getLongValue()) //if I am not the mention maker
 			{
 				LOGGER.info("Received mention: " + mention_text.getTextValue());		
 				//follow the participant
 				boolean followSuccess = followParticipant(participant.path("id").getLongValue());
 				// send him/her a welcome DM or a DM informing he's/she's already in the competition
-				dm(participant_name.getTextValue(), participant.path("id").getLongValue(), followSuccess ? WELCOME_PARTICIPANT_MESSAGE : COULDNOT_FOLLOW_MESSAGE); 
+				dm(participant_name.getTextValue(), participant.path("id").getLongValue(), followSuccess ? config.getWelcomeMessage() : config.getCannotFollowMessage());
 				//if(followSuccess) _partecipantsCount++;
 				LOGGER.info("New Participant: " + participant_name.getTextValue());	
 			
@@ -113,19 +84,19 @@ public class Processor {
 			 * In case of
 			 */
 			else if(direct_msg.isValueNode() && //if the direct_msg node is present in the message
-					direct_msgStr.toLowerCase().contains(FLAG_KEYWORD) && //if direct_msg contains the CTF flag
+					direct_msgStr.toLowerCase().contains(config.getFlagKeyword()) && //if direct_msg contains the CTF flag
 					!direct_msg_senderId.isMissingNode() && //if direct_msg_senderId is present in the message
-					direct_msg_senderId.getLongValue() != SYTAC_USER_ID) //if the received message is not an echo message (message from Sytac itself) 
+					direct_msg_senderId.getLongValue() != config.getOwnUserId()) //if the received message is not an echo message (message from Sytac itself)
 			{
-				String answer[] = direct_msgStr.toLowerCase().split(FLAG_KEYWORD);
+				String answer[] = direct_msgStr.toLowerCase().split(config.getFlagKeyword());
 				if(answer.length < 2){
 					LOGGER.warn("The JSON received isn't a #ctf well formed message: " + node.toString());
-					dm(direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue(), BAD_MESSAGE);
+					dm(direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue(), config.getBadMessage());
 					return;
 				}
 				//if (answer!= null) answer = answer[1].trim();
 				boolean ok = processAnswerToRemote(answer[1], direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue());
-				dm(direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue(), ok ? RIGHT_ANSWER_MESSAGE : WRONG_ANSWER_MESSAGE); 
+				dm(direct_msg_name.getTextValue(), direct_msg_senderId.getLongValue(), ok ? config.getRightAnswerMessage() : config.getWrongAnswerMessage());
 				LOGGER.info("New answer from participant: " + direct_msg_name.getTextValue() + " ID: " + direct_msg_senderId.getLongValue());
 			}
 			/**
@@ -133,7 +104,7 @@ public class Processor {
 			 */
 			else if(!event_node.isMissingNode() && 
 					!event_source_id.isMissingNode() && 
-					event_source_id.getLongValue() != SYTAC_USER_ID) {
+					event_source_id.getLongValue() != config.getOwnUserId()) {
 				JsonNode src = node.path("source");
 				System.out.println(src.toString());
 			}
@@ -153,7 +124,7 @@ public class Processor {
 	 
 	 private boolean followParticipant(long idParticipant){
 		try {
-			twitter4jClient.createFriendship(idParticipant);
+			twitter.createFriendship(idParticipant);
 		} catch (TwitterException e) {
 			LOGGER.error(e.getMessage(), e);
 			return false;
@@ -169,13 +140,13 @@ public class Processor {
 	  */
 	 private byte dm(String userName, long userId, String message){
 		 try {
-			 DirectMessage msg = twitter4jClient.sendDirectMessage(userId, message);
+			 DirectMessage msg = twitter.sendDirectMessage(userId, message);
 			 LOGGER.info("Sent: " + msg.getText() + " to @" + msg.getRecipientScreenName());
 			 return 0;
 		 } catch (TwitterException e) {
 			LOGGER.error("Error during the DM to the partecipant " + userId + ": TWITTER4J exception, try to mention him/her ");
 			try {
-				twitter4jClient.updateStatus(String.format(WELCOME_NO_FOLLOW_MESSAGE, userName));
+				twitter.updateStatus(String.format(config.getWelcomeNoFollowMessage(), userName));
 				return 1;
 			} catch (TwitterException e1) {
 				LOGGER.error("Error during the mention of the new partecipant " + userName + ", id: "+userId +" - TWITTER4J exception ", e);

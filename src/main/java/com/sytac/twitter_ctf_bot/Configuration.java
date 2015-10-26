@@ -21,6 +21,16 @@ public class Configuration {
     private static final String SECRET          = "secret";
     private static final String OWN_USER_ID     = "ownUserId";
     private static final String BOT_NAME        = "botName";
+    private static final String FLAG_KEY        = "FLAG_KEY";
+
+    // Twit template messages
+    // TODO: move to message bundle
+    private static final String WELCOME_PARTICIPANT_MESSAGE = "WELCOME_PARTICIPANT_MESSAGE";
+    private static final String COULDNOT_FOLLOW_MESSAGE = "COULDNOT_FOLLOW_MESSAGE";
+    private static final String BAD_MESSAGE = "BAD_MESSAGE";
+    private static final String RIGHT_ANSWER_MESSAGE = "RIGHT_ANSWER_MESSAGE";
+    private static final String WRONG_ANSWER_MESSAGE = "WRONG_ANSWER_MESSAGE";
+    private static final String WELCOME_NO_FOLLOW_MESSAGE = "WELCOME_NO_FOLLOW_MESSAGE";
 
     private final Properties properties;
 
@@ -103,7 +113,50 @@ public class Configuration {
         return Long.parseLong(properties.getProperty(OWN_USER_ID));
     }
 
+    /**
+     * Return the name of the CTF twitter bot
+     *
+     * @return The CTF twitter bot name
+     */
     public String getBotName() {
         return properties.getProperty(BOT_NAME);
+    }
+
+    /**
+     * Returns the solution to the puzzle
+     *
+     * @return The solution to the puzzle
+     */
+    public String getFlagKeyword() {
+        return properties.getProperty(FLAG_KEY);
+    }
+
+    /**
+     * Return the welcome message template
+     *
+     * @return The welcome message template
+     */
+    public String getWelcomeMessage() {
+        return properties.getProperty(WELCOME_PARTICIPANT_MESSAGE);
+    }
+
+    public String getCannotFollowMessage() {
+        return properties.getProperty(COULDNOT_FOLLOW_MESSAGE);
+    }
+
+    public String getBadMessage() {
+        return properties.getProperty(BAD_MESSAGE);
+    }
+
+    public String getRightAnswerMessage() {
+        return properties.getProperty(RIGHT_ANSWER_MESSAGE);
+    }
+
+    public String getWrongAnswerMessage() {
+        return properties.getProperty(WRONG_ANSWER_MESSAGE);
+    }
+
+    public String getWelcomeNoFollowMessage() {
+        return properties.getProperty(WELCOME_NO_FOLLOW_MESSAGE);
     }
 }

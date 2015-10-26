@@ -35,7 +35,7 @@ public class ReadingThread implements Runnable {
 		try {
 			while (!_hosebirdClient.isDone()) {
 				  String msg = _msgQueue.take();
-				  new Processor().processMessage(msg);
+				  new Processor(twitter4jClient, configuration).processMessage(msg);
 			}
 			_hosebirdClient.stop();
 		}catch (Exception e) {
