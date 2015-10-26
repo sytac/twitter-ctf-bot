@@ -1,20 +1,17 @@
 package com.sytac.twitter_ctf_bot;
 
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-
+import com.twitter.hbc.core.Client;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.twitter.hbc.core.Client;
-import com.twitter.hbc.core.Hosts;
-
 import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+
+import java.io.IOException;
+import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
 
 public class ReadingThread extends Thread{
 
@@ -26,27 +23,19 @@ public class ReadingThread extends Thread{
 	final static String WINNER_MESSAGE = "Congratulations, you are the winner of an amazing Parrot AR Drone 2.0!";
 	final static String BAD_MESSAGE = "The message is not well formed; please respect the template #ctf \"ANSWER\" (without quotes)";
 	
-	final static String TWITTER_DM_ENDPOINT = "https://api.twitter.com/1.1/direct_messages/new.json";
-	final static String SYTAC_REST_ENDPOINT = "http://sytac.io/ctf.do";
-	final static String FLAG_KEY = "foundFlag";
-	final static String PARTIC_ID_KEY = "partecipantId";
-	final static String PARTIC_NAME_KEY = "partecipantName";
-	
 	static long SYTAC_USER_ID;
 	
-	Hosts _hosebirdHosts;
-	BlockingQueue<String> _msgQueue;
-	Client _hosebirdClient;
-	Twitter _twitter4jClient;
-	Integer _partecipantsCount;
-	Properties _propFile;
-	
-	public ReadingThread(Hosts hosebirdHosts, BlockingQueue<String> msgQueue, Client hosebirdClient,
+	private final BlockingQueue<String> _msgQueue;
+	private final Client _hosebirdClient;
+	private final Twitter _twitter4jClient;
+	private final Properties _propFile;
+	private Integer _partecipantsCount = 0;
+
+	public ReadingThread(BlockingQueue<String> msgQueue, Client hosebirdClient,
 			Twitter twitter4jClient, Integer partecipantsNumber, Properties propFile) {
 		
 		_hosebirdClient = hosebirdClient;
 		_msgQueue = msgQueue;
-		_hosebirdClient = hosebirdClient;
 		_partecipantsCount = partecipantsNumber;
 		_twitter4jClient = twitter4jClient;
 		_propFile = propFile;

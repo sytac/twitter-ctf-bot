@@ -61,12 +61,12 @@ public class Bot {
 			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
 			/** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
 			Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
-			
+
 			initializeHBC(consumerKey, consumerSecret, token, secret, msgQueue, hosebirdHosts);
 			initializeTwit4j(consumerKey, consumerSecret, token, secret);
 			
 			hosebirdClient.connect();// Attempts to establish a connection to the Sytac's user stream.
-			new ReadingThread(hosebirdHosts, msgQueue, hosebirdClient, twitter4jClient, participantNumber, CONF_FILE).start(); //Run the Thread that will consume the User-stream
+			new ReadingThread(msgQueue, hosebirdClient, twitter4jClient, participantNumber, CONF_FILE).start(); //Run the Thread that will consume the User-stream
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encoutered, closing the connection...");
