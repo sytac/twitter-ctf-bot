@@ -84,7 +84,7 @@ public class Bot {
 	}
 	
 	/**
-	 * Initialize the HoseBird Client (STREAMING-API part)
+	 * Initialize the HoseBird Client (STREAMING-API)
 	 * @param consumerKey
 	 * @param consumerSecret
 	 * @param token
@@ -98,7 +98,7 @@ public class Bot {
 		
 		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
 		ClientBuilder builder = new ClientBuilder()
-				  .name("Hosebird-Client-01")                              // optional: mainly for the logs
+				  //.name("Hosebird-Client-01")                              // optional: mainly for the logs
 				  .hosts(hosebirdHosts)
 				  .authentication(hosebirdAuth)
 				  .endpoint(userEndpoint)
@@ -109,7 +109,7 @@ public class Bot {
 	}
 	
 	/**
-	 * Initialize the Twitter4j Client instance (REST-API part)
+	 * Initialize the Twitter4j Client instance (REST-API calls)
 	 * @param consumerKey
 	 * @param consumerSecret
 	 * @param token
