@@ -99,8 +99,8 @@ public class Configuration {
      *
      * @return The own user id
      */
-    public String getOwnUserId(){
-        return properties.getProperty(OWN_USER_ID);
+    public Long getOwnUserId(){
+        return Long.parseLong(properties.getProperty(OWN_USER_ID));
     }
 
     public String getBotName() {

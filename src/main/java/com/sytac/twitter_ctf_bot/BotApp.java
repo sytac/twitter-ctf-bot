@@ -59,7 +59,7 @@ public class BotApp {
     }
 
     /**
-     * Initialize the HoseBird Client (STREAMING-API part)
+     * Initialize the HoseBird Client to read the User Stream (see https://dev.twitter.com/streaming/userstreams)
      *
      * @param config The application configuration
      * @param queue  The queue in which messages are put before processing

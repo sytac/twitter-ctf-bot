@@ -22,7 +22,7 @@ public class ReadingThread implements Runnable {
 	final static String WINNER_MESSAGE = "Congratulations, you are the winner of an amazing Parrot AR Drone 2.0!";
 	final static String BAD_MESSAGE = "The message is not well formed; please respect the template #ctf \"ANSWER\" (without quotes)";
 	
-	static long SYTAC_USER_ID;
+	private long SYTAC_USER_ID;
 	
 	private final BlockingQueue<String> _msgQueue;
 	private final Client _hosebirdClient;
@@ -39,7 +39,7 @@ public class ReadingThread implements Runnable {
 		_twitter4jClient = twitter4jClient;
 		_configuration = configuration;
 		try{
-			SYTAC_USER_ID = Long.valueOf(_configuration.getOwnUserId());
+			SYTAC_USER_ID = configuration.getOwnUserId();
 		}catch(Exception e){
 			LOGGER.error("error during the extraction of the ownerUserId field from the PROP_FILE");
 		}
