@@ -32,9 +32,8 @@ public class BotApp {
     }
 
     private static void runBot(String configFile) {
-        Configuration configuration = null;
         try {
-            configuration = new Configuration(configFile);
+            Configuration configuration = new Configuration(configFile);
             new Bot(configuration).run();
         } catch (IOException e) {
             LOGGER.error("The bot slipped on a glitch in the Matrix, exiting: {}", e.getMessage());

@@ -78,7 +78,7 @@ public class Bot {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                LOGGER.info("Shutdown hook catched, closing the hosebirdClient");
+                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
                 LOGGER.info("Number of participants registered for this session: " + participantNumber);
                 hosebirdClient.stop();
                 try {
@@ -106,7 +106,7 @@ public class Bot {
                                                  config.getSecret());
 
         ClientBuilder builder = new ClientBuilder()
-                .name("Hosebird-Client-01")
+                .name(config.getBotName())
                 .hosts(hosebirdHosts)
                 .authentication(hosebirdAuth)
                 .endpoint(userEndpoint)

@@ -20,6 +20,7 @@ public class Configuration {
     private static final String TOKEN           = "token";
     private static final String SECRET          = "secret";
     private static final String OWN_USER_ID     = "ownUserId";
+    private static final String BOT_NAME        = "botName";
 
     private final Properties properties;
 
@@ -100,5 +101,9 @@ public class Configuration {
      */
     public String getOwnUserId(){
         return properties.getProperty(OWN_USER_ID);
+    }
+
+    public String getBotName() {
+        return properties.getProperty(BOT_NAME);
     }
 }
