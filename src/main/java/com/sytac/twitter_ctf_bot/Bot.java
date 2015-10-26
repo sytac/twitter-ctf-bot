@@ -39,9 +39,6 @@ public class Bot {
 	private static Integer participantNumber = 0;
 	private static Twitter twitter4jClient;
 	
-	
-	public Bot(){}
-	
 	private void run(String path){
 		//ShutDownHook to catch the SIGING when terminating the process.
 		Runtime.getRuntime().addShutdownHook(new Thread(){
