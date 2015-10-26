@@ -26,13 +26,6 @@
             <version>2.2.0</version>
         </dependency>
 
-        <!-- JUNIT TEST -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.4</version>
-        </dependency>
-
         <!-- JACSKON JSON HANDLING -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
@@ -62,6 +55,20 @@
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.7</version>
+        </dependency>
+
+        <!-- TEST SCOPE -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.0.31-beta</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

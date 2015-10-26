@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * A twitter Bot which manages the communication with the participants of the Sytac Capture The Flag competition
+ * A twitter Bot which manages the communication with the participants of the Sytac Capture The Flag competition. Reacts
+ * to mentions and direct messages to manage:
+ *
+ * - subscriptions
+ * - answers checks
  *
  * @author Tonino Catapano
  * @author Carlo Sciolla
@@ -32,13 +36,12 @@ public class Bot {
         this.hosebirdClient = streamClient;
         this.twitter = twitterClient;
         this.queue = queue;
+
+        installShutdownHook();
     }
 
     public void run() {
-
         try {
-            gracefulShutdown();
-
             hosebirdClient.connect(); // Attempts to establish a connection to the Sytac's user stream.
             ReadingThread reader = new ReadingThread(queue, hosebirdClient, twitter, participantNumber, config);
             new Thread(reader).start(); //Run the Thread that will consume the User-stream
@@ -51,14 +54,14 @@ public class Bot {
                 hosebirdClient.stop();
             }
         } finally {
-            // TODO: kill the runnable if still runnning
+            // TODO: kill the runnable if still running
         }
     }
 
     /**
      * Register a shutdown hook to make sure resources are properly freed
      */
-    private void gracefulShutdown() {
+    private void installShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
