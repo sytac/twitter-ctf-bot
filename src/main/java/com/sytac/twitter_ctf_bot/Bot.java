@@ -24,116 +24,141 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * A twitter Bot which manages the communication with the participants of the Sytac Capture The Flag competition
+ *
+ * @author Tonino Catapano
+ * @author Carlo Sciolla
+ * @since 1.0
+ */
 public class Bot {
-	
-	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-	private static final Properties CONF_FILE = new Properties();
-	
-	private Client hosebirdClient;
-	private Integer participantNumber = 0;
-	private Twitter twitter4jClient;
-	
-	public void run(String path){
-		//ShutDownHook to catch the SIGING when terminating the process.
-		Runtime.getRuntime().addShutdownHook(new Thread(){
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
+
+    private final Properties CONF_FILE = new Properties();
+
+    private Client hosebirdClient;
+    private Integer participantNumber = 0;
+    private Twitter twitter4jClient;
+
+    public void run(String path) {
+        gracefulShutdown();
+        loadPropFile(path);    //load the properties file
+
+        try {
+            //get the keys and tokens from the CONF_FILE
+            String consumerKey = CONF_FILE.getProperty("consumerKey");
+            String consumerSecret = CONF_FILE.getProperty("consumerSecret");
+            String token = CONF_FILE.getProperty("token");
+            String secret = CONF_FILE.getProperty("secret");
+
+            /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
+            BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
+            /** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
+            Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
+
+            initializeHBC(consumerKey, consumerSecret, token, secret, msgQueue, hosebirdHosts);
+            initializeTwit4j(consumerKey, consumerSecret, token, secret);
+
+            hosebirdClient.connect();// Attempts to establish a connection to the Sytac's user stream.
+            new ReadingThread(msgQueue, hosebirdClient, twitter4jClient, participantNumber, CONF_FILE).start(); //Run the Thread that will consume the User-stream
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.info("Unexpected error encoutered, closing the connection...");
+            hosebirdClient.stop();
+        }
+    }
+
+    /**
+     * Register a shutdown hook to make sure resources are properly freed
+     */
+    private void gracefulShutdown() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
-            public void run(){
+            public void run() {
                 LOGGER.info("Shutdown hook catched, closing the hosebirdClient");
                 LOGGER.info("Number of participants registered for this session: " + participantNumber);
                 hosebirdClient.stop();
                 try {
-					Unirest.shutdown();
-				} catch (IOException e) {
-					 LOGGER.error("error while shutting down Unirest Client: ", e);
-				}
+                    Unirest.shutdown();
+                } catch (IOException e) {
+                    LOGGER.error("error while shutting down Unirest Client: ", e);
+                }
             }
-        });	
-		
-		loadPropFile(path);	//load the properties file
-		try{
-			//get the keys and tokens from the CONF_FILE
-			String consumerKey = CONF_FILE.getProperty("consumerKey");
-			String consumerSecret = CONF_FILE.getProperty("consumerSecret");
-			String token = CONF_FILE.getProperty("token");
-			String secret = CONF_FILE.getProperty("secret");
-			
-			/** Set up the blocking queue for hbc: size based on expected TPS of your stream */
-			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
-			/** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
-			Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
+        });
+    }
 
-			initializeHBC(consumerKey, consumerSecret, token, secret, msgQueue, hosebirdHosts);
-			initializeTwit4j(consumerKey, consumerSecret, token, secret);
-			
-			hosebirdClient.connect();// Attempts to establish a connection to the Sytac's user stream.
-			new ReadingThread(msgQueue, hosebirdClient, twitter4jClient, participantNumber, CONF_FILE).start(); //Run the Thread that will consume the User-stream
-		}catch(Exception e){
-			LOGGER.error(e.getMessage(),e);
-			LOGGER.info("Unexpected error encoutered, closing the connection...");
-			hosebirdClient.stop();
-		}
-	}
-	
-	/**
-	 * Initialize the HoseBird Client (STREAMING-API part)
-	 * @param consumerKey
-	 * @param consumerSecret
-	 * @param token
-	 * @param secret
-	 * @param msgQueue
-	 * @param hosebirdHosts
-	 */
-	private void initializeHBC(String consumerKey,String consumerSecret,String token,String secret,BlockingQueue<String> msgQueue, Hosts hosebirdHosts){		
-		UserstreamEndpoint userEndpoint = new UserstreamEndpoint();
-		userEndpoint.withUser(true); //fetch only the user-related messages	
-		
-		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
-		ClientBuilder builder = new ClientBuilder()
-				  .name("Hosebird-Client-01")                              // optional: mainly for the logs
-				  .hosts(hosebirdHosts)
-				  .authentication(hosebirdAuth)
-				  .endpoint(userEndpoint)
-				  .processor(new StringDelimitedProcessor(msgQueue));
-				 // .eventMessageQueue(eventQueue);                          // optional: use this if you want to process client events
+    /**
+     * Initialize the HoseBird Client (STREAMING-API part)
+     *
+     * @param consumerKey
+     * @param consumerSecret
+     * @param token
+     * @param secret
+     * @param msgQueue
+     * @param hosebirdHosts
+     */
+    private void initializeHBC(String consumerKey, String consumerSecret, String token, String secret, BlockingQueue<String> msgQueue, Hosts hosebirdHosts) {
+        UserstreamEndpoint userEndpoint = new UserstreamEndpoint();
+        userEndpoint.withUser(true); //fetch only the user-related messages
 
-		hosebirdClient = builder.build();
-	}
-	
-	/**
-	 * Initialize the Twitter4j Client instance (REST-API part)
-	 * @param consumerKey
-	 * @param consumerSecret
-	 * @param token
-	 * @param secret
-	 */
-	private void initializeTwit4j(String consumerKey, String consumerSecret,String token, String secret){
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled(true)
-		  .setOAuthConsumerKey(consumerKey)
-		  .setOAuthConsumerSecret(consumerSecret)
-		  .setOAuthAccessToken(token)
-		  .setOAuthAccessTokenSecret(secret);
-		TwitterFactory tf = new TwitterFactory(cb.build());		
-		twitter4jClient = tf.getInstance();
-	}
-	
-	
-	/**
-	 * Load the properties file
-	 * @param path
-	 */
-	private void loadPropFile(String path){
-		try {
-			InputStream in = Files.newInputStream(Paths.get(path));
-			if (path == null || path.isEmpty() || in == null){
-				LOGGER.error("Please specificate a valid path for the properties file in the first argument");
-				return;
-			}
-			CONF_FILE.load(in);
-			in.close();
-		} catch(IOException e) {
-			LOGGER.error("Error while reading the properties file: "+ path, e);
-			return;
-		}
-	}
+        Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
+        ClientBuilder builder = new ClientBuilder()
+                .name("Hosebird-Client-01")                              // optional: mainly for the logs
+                .hosts(hosebirdHosts)
+                .authentication(hosebirdAuth)
+                .endpoint(userEndpoint)
+                .processor(new StringDelimitedProcessor(msgQueue));
+        // .eventMessageQueue(eventQueue);                          // optional: use this if you want to process client events
+
+        hosebirdClient = builder.build();
+    }
+
+    /**
+     * Initialize the Twitter4j Client instance (REST-API part)
+     *
+     * @param consumerKey
+     * @param consumerSecret
+     * @param token
+     * @param secret
+     */
+    private void initializeTwit4j(String consumerKey, String consumerSecret, String token, String secret) {
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(consumerKey)
+                .setOAuthConsumerSecret(consumerSecret)
+                .setOAuthAccessToken(token)
+                .setOAuthAccessTokenSecret(secret);
+        TwitterFactory tf = new TwitterFactory(cb.build());
+        twitter4jClient = tf.getInstance();
+    }
+
+
+    /**
+     * Load the properties file
+     *
+     * @param path
+     */
+    private void loadPropFile(String path) {
+        InputStream in = null;
+        try {
+            in = Files.newInputStream(Paths.get(path));
+            if (path.isEmpty() || in == null) {
+                throw new IllegalArgumentException("Please specify a valid path for the properties file in the first argument");
+            }
+
+            CONF_FILE.load(in);
+        } catch (IOException e) {
+            LOGGER.error("Error while reading the properties file: " + path, e);
+            return;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    LOGGER.error("Error while reading the configuration file: {}", e.getMessage());
+                }
+            }
+        }
+    }
 }
