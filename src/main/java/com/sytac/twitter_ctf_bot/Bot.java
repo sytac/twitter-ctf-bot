@@ -65,7 +65,9 @@ public class Bot {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             LOGGER.info("Unexpected error encoutered, closing the connection...");
-            hosebirdClient.stop();
+            if (hosebirdClient != null) {
+                hosebirdClient.stop();
+            }
         }
     }
 
