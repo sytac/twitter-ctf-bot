@@ -12,32 +12,27 @@ public class ReadingThread implements Runnable {
 	final static Logger LOGGER = LoggerFactory.getLogger(ReadingThread.class);
 	
 	/** Instances variables initialized in the constructor **/
-	private final BlockingQueue<String> _msgQueue;
-	private final Client _hosebirdClient;
+	private final BlockingQueue<String> queue;
+	private final Client stream;
+	private final Processor processor;
 
-	//private final Integer _partecipantsCount;
-	
 	public ReadingThread(BlockingQueue<String> msgQueue, Client hosebirdClient,
-			Twitter twitter4jClient, Integer partecipantsNumber) {
-
-		_hosebirdClient = hosebirdClient;
-		_msgQueue = msgQueue;
-		
-		//_partecipantsCount = partecipantsNumber;
+			Twitter twitter4jClient, Configuration configuration) {
+		stream = hosebirdClient;
+		queue = msgQueue;
+		processor = new Processor(twitter4jClient, configuration);
 	}
-	
 
-	
 	/**
 	 * The loop that will intercept and handle the incoming messages for Sytac
 	 */
 	public void run(){
 		try {
-			while (!_hosebirdClient.isDone()) {
-				  String msg = _msgQueue.take();
-				  new Processor(twitter4jClient, configuration).processMessage(msg);
+			while (!stream.isDone()) {
+				  String msg = queue.take();
+				  processor.processMessage(msg);
 			}
-			_hosebirdClient.stop();
+			stream.stop();
 		}catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}

@@ -82,6 +82,7 @@ public class BotApp {
                 .hosts(hosebirdHosts)
                 .authentication(hosebirdAuth)
                 .endpoint(userEndpoint)
+                .retries(3)
                 .processor(new StringDelimitedProcessor(queue));
 
         return builder.build();

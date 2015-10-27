@@ -43,7 +43,7 @@ public class Bot {
     public void run() {
         try {
             hosebirdClient.connect(); // Attempts to establish a connection to the Sytac's user stream.
-            ReadingThread reader = new ReadingThread(queue, hosebirdClient, twitter, participantNumber);
+            ReadingThread reader = new ReadingThread(queue, hosebirdClient, twitter, config);
             new Thread(reader).start(); //Run the Thread that will consume the User-stream
 
             // TODO: process messages in an infinite loop here..
