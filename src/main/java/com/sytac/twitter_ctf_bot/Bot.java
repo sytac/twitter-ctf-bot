@@ -31,7 +31,7 @@ public class Bot {
 		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
             @Override
             public void run(){
-                LOGGER.info("Shutdown hook catched, closing the hosebirdClient");
+                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
                 HosebirdClient.getInstance().getClient().stop();
                 try {
 					Unirest.shutdown();
@@ -43,7 +43,7 @@ public class Bot {
 		try{
 			Prop p = Prop.getInstance();
 			p.initPropFile(path);			
-			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
+			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>(1000);
 			Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
 			HosebirdClient.getInstance().initializeHBC(p.consumerKey, p.consumerSecret, p.token, p.secret, msgQueue, hosebirdHosts);
 			HosebirdClient.getInstance().getClient().connect();
@@ -51,7 +51,7 @@ public class Bot {
 			new ReadingThread(msgQueue).start();
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
-			LOGGER.info("Unexpected error encoutered, closing the connection...");
+			LOGGER.info("Unexpected error encountered, closing the connection...");
 			HosebirdClient.getInstance().getClient().stop();
 		}
 	}
