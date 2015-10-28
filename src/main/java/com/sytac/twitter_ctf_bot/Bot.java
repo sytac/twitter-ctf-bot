@@ -1,80 +1,60 @@
 package com.sytac.twitter_ctf_bot;
 
-import com.mashape.unirest.http.Unirest;
-import com.twitter.hbc.core.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import twitter4j.Twitter;
-
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mashape.unirest.http.Unirest;
+import com.sytac.twitter_ctf_bot.client.HosebirdClient;
+import com.sytac.twitter_ctf_bot.client.TwitterClient;
+import com.sytac.twitter_ctf_bot.conf.Prop;
+import com.twitter.hbc.core.Constants;
+import com.twitter.hbc.core.Hosts;
+import com.twitter.hbc.core.HttpHosts;
+
 
 /**
- * A twitter Bot which manages the communication with the participants of the Sytac Capture The Flag competition. Reacts
- * to mentions and direct messages to manage:
- *
- * - subscriptions
- * - answers checks
- *
- * @author Tonino Catapano
- * @author Carlo Sciolla
+ * Bot Control class
+ * @author Tonino Catapano - tonino.catapano@sytac.io
  * @since 1.0
  */
 public class Bot {
+	
+	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
-    private final Configuration config;
-    private final BlockingQueue<String> queue;
-
-    private final Client hosebirdClient;
-    private Integer participantNumber = 0;
-    private final Twitter twitter;
-
-    public Bot(Configuration configuration, Twitter twitterClient, Client streamClient, BlockingQueue<String> queue) {
-        this.config = configuration;
-        this.hosebirdClient = streamClient;
-        this.twitter = twitterClient;
-        this.queue = queue;
-
-        installShutdownHook();
-    }
-
-    public void run() {
-        try {
-            hosebirdClient.connect(); // Attempts to establish a connection to the Sytac's user stream.
-            ReadingThread reader = new ReadingThread(queue, hosebirdClient, twitter, config);
-            new Thread(reader).start(); //Run the Thread that will consume the User-stream
-
-            // TODO: process messages in an infinite loop here..
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            LOGGER.info("Unexpected error encoutered, closing the connection...");
-            if (hosebirdClient != null) {
-                hosebirdClient.stop();
-            }
-        } finally {
-            // TODO: kill the runnable if still running
-        }
-    }
-
-    /**
-     * Register a shutdown hook to make sure resources are properly freed
-     */
-    private void installShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
+	
+	public void run(String path){
+		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
             @Override
-            public void run() {
-                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
-                LOGGER.info("Number of participants registered for this session: " + participantNumber);
-                hosebirdClient.stop();
+            public void run(){
+                LOGGER.info("Shutdown hook catched, closing the hosebirdClient");
+                HosebirdClient.getInstance().getClient().stop();
                 try {
-                    Unirest.shutdown();
-                } catch (IOException e) {
-                    LOGGER.error("error while shutting down Unirest Client: ", e);
-                }
+					Unirest.shutdown();
+				} catch (IOException e) {
+					 LOGGER.error("error while shutting down Unirest Client: ", e);
+				}
             }
-        });
-    }
+        });		
+		try{
+			Prop p = Prop.getInstance();
+			p.initPropFile(path);			
+			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
+			Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
+			HosebirdClient.getInstance().initializeHBC(p.consumerKey, p.consumerSecret, p.token, p.secret, msgQueue, hosebirdHosts);
+			HosebirdClient.getInstance().getClient().connect();
+			TwitterClient.getInstance().initializeTwit4j(p.consumerKey, p.consumerSecret, p.token, p.secret);
+			new ReadingThread(msgQueue).start();
+		}catch(Exception e){
+			LOGGER.error(e.getMessage(),e);
+			LOGGER.info("Unexpected error encoutered, closing the connection...");
+			HosebirdClient.getInstance().getClient().stop();
+		}
+	}
+	
+	
 }
