@@ -1,5 +1,6 @@
 package com.sytac.twitter_ctf_bot.client;
 
+import com.sytac.twitter_ctf_bot.conf.Prop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,25 +12,20 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterClient {
 
-	private static Twitter twitter4jClient;
+	private Twitter twitter4jClient;
 	private final static Logger LOGGER = LoggerFactory.getLogger(TwitterClient.class);
-	
-	private static TwitterClient _instance = null;
-	
-	protected TwitterClient() {}
 
-	public static TwitterClient getInstance() {
-		if(_instance == null) {
-			_instance = new TwitterClient();
-	    }
-	    return _instance;
+	public  TwitterClient(Prop prop) {
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled(true)
+				.setOAuthConsumerKey(prop.consumerKey)
+				.setOAuthConsumerSecret(prop.consumerSecret)
+				.setOAuthAccessToken(prop.token)
+				.setOAuthAccessTokenSecret(prop.secret);
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		twitter4jClient = tf.getInstance();
 	}
-	
-	
-	public Twitter getClient() {
-		return twitter4jClient;
-	}
-	
+
 	public boolean followParticipant(long idParticipant){
 		try {
 			twitter4jClient.createFriendship(idParticipant);
@@ -62,24 +58,4 @@ public class TwitterClient {
 			}
 		 }	 
 	 }
-	 
-	 
-		/**
-		 * Initialize the Twitter4j Client instance (REST-API calls)
-		 * @param consumerKey
-		 * @param consumerSecret
-		 * @param token
-		 * @param secret
-		 */
-		public void initializeTwit4j(String consumerKey, String consumerSecret,String token, String secret){
-			ConfigurationBuilder cb = new ConfigurationBuilder();
-			cb.setDebugEnabled(true)
-			  .setOAuthConsumerKey(consumerKey)
-			  .setOAuthConsumerSecret(consumerSecret)
-			  .setOAuthAccessToken(token)
-			  .setOAuthAccessTokenSecret(secret);
-			TwitterFactory tf = new TwitterFactory(cb.build());		
-			twitter4jClient = tf.getInstance();
-		}
-	
 }

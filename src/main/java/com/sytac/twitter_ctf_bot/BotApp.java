@@ -1,5 +1,7 @@
 package com.sytac.twitter_ctf_bot;
 
+import com.sytac.twitter_ctf_bot.client.HosebirdClient;
+import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -46,64 +48,13 @@ public class BotApp {
     }
 
     private static void runBot(String configFile) {
-        try {
-            Configuration configuration = new Configuration(configFile);
-            /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
-            BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
-            Client client = initializeHBC(configuration, queue);
-            Twitter twitter = initializeTwit4j(configuration);
-            new Bot(configuration, twitter, client, queue).run();
-        } catch (IOException e) {
-            LOGGER.error("The bot slipped on a glitch in the Matrix, exiting: {}", e.getMessage());
-        }
-    }
+        Prop configuration = new Prop(configFile);
+        /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
+        BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
+        HosebirdClient client = new HosebirdClient(configuration, queue);
+//            Twitter twitter = initializeTwit4j(configuration);
+        new Bot(configuration, client).run();
 
-    /**
-     * Initialize the HoseBird Client to read the User Stream (see https://dev.twitter.com/streaming/userstreams)
-     *
-     * @param config The application configuration
-     * @param queue  The queue in which messages are put before processing
-     * @return The configured Twitter Stream client
-     */
-    private static Client initializeHBC(Configuration config, BlockingQueue<String> queue) {
-        /** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
-        Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
-
-        UserstreamEndpoint userEndpoint = new UserstreamEndpoint();
-        userEndpoint.withUser(true); //fetch only the user-related messages
-
-        Authentication hosebirdAuth = new OAuth1(config.getConsumerKey(),
-                config.getConsumerSecret(),
-                config.getToken(),
-                config.getSecret());
-
-        ClientBuilder builder = new ClientBuilder()
-                .name(config.getBotName())
-                .hosts(hosebirdHosts)
-                .authentication(hosebirdAuth)
-                .endpoint(userEndpoint)
-                .retries(3)
-                .processor(new StringDelimitedProcessor(queue));
-
-        return builder.build();
-    }
-
-    /**
-     * Initialize the Twitter4j Client instance (REST-API part)
-     *
-     * @param config The application configuration
-     * @return The configured Twitter4j client
-     */
-    private static Twitter initializeTwit4j(Configuration config) {
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(config.getConsumerKey())
-                .setOAuthConsumerSecret(config.getConsumerSecret())
-                .setOAuthAccessToken(config.getToken())
-                .setOAuthAccessTokenSecret(config.getSecret());
-        TwitterFactory tf = new TwitterFactory(cb.build());
-
-        return tf.getInstance();
     }
 
     /**

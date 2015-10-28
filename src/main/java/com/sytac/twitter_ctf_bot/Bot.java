@@ -1,19 +1,16 @@
 package com.sytac.twitter_ctf_bot;
 
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.mashape.unirest.http.Unirest;
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
-import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.Hosts;
-import com.twitter.hbc.core.HttpHosts;
+import com.sytac.twitter_ctf_bot.model.ParsedJson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 /**
@@ -25,14 +22,20 @@ public class Bot {
 	
 	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
-
+	private final Prop configuration;
+	private final HosebirdClient stream;
 	
-	public void run(String path){
+	public Bot(Prop configuration, HosebirdClient stream) {
+		this.configuration = configuration;
+		this.stream = stream;
+	}
+
+	public void run(){
 		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
             @Override
             public void run(){
                 LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
-                HosebirdClient.getInstance().getClient().stop();
+                stream.stop();
                 try {
 					Unirest.shutdown();
 				} catch (IOException e) {
@@ -41,20 +44,26 @@ public class Bot {
             }
         });		
 		try{
-			Prop p = Prop.getInstance();
-			p.initPropFile(path);			
-			BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>(1000);
-			Hosts hosebirdHosts = new HttpHosts(Constants.USERSTREAM_HOST);
-			HosebirdClient.getInstance().initializeHBC(p.consumerKey, p.consumerSecret, p.token, p.secret, msgQueue, hosebirdHosts);
-			HosebirdClient.getInstance().getClient().connect();
-			TwitterClient.getInstance().initializeTwit4j(p.consumerKey, p.consumerSecret, p.token, p.secret);
-			new ReadingThread(msgQueue).start();
+			BlockingQueue<String> incoming = new LinkedBlockingQueue<>(1000);
+			BlockingQueue<ParsedJson> messages = new LinkedBlockingQueue<>(1000);
+			stream.connect();
+			TwitterClient twitter = new TwitterClient(configuration);
+			new ReadingThread(configuration, stream, incoming, messages).start();
+			Processor processor = new Processor(configuration, twitter);
+			process(messages, processor);
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encountered, closing the connection...");
-			HosebirdClient.getInstance().getClient().stop();
+			stream.stop();
 		}
 	}
-	
-	
+
+	private void process(BlockingQueue<ParsedJson> messages, Processor processor) throws InterruptedException {
+		while(true) {
+			ParsedJson message = messages.take();
+			processor.processMessage(message);
+		}
+	}
+
+
 }

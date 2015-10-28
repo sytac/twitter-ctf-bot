@@ -1,5 +1,6 @@
 package com.sytac.twitter_ctf_bot;
 
+import com.sytac.twitter_ctf_bot.conf.Prop;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,9 +16,9 @@ public class ConfigurationTest {
     @Test
     public void canLoadProperties() throws URISyntaxException, IOException {
         String path = Utils.findClassPathLocation("test-configuration.properties");
-        Configuration configuration = new Configuration(path);
+        Prop configuration = new Prop(path);
 
-        assertEquals("Couldn't read the configuration properly", "secret", configuration.getSecret());
+        assertEquals("Couldn't read the configuration properly", "secret", configuration.secret);
     }
 
 }

@@ -1,29 +1,24 @@
 package com.sytac.twitter_ctf_bot;
 
-import com.twitter.hbc.core.Client;
+import com.sytac.twitter_ctf_bot.client.HosebirdClient;
+import com.sytac.twitter_ctf_bot.conf.Prop;
 import org.junit.Before;
 import org.junit.Test;
-import twitter4j.Twitter;
-
-import java.util.concurrent.BlockingQueue;
 
 import static org.mockito.Mockito.*;
 
 /**
  * Tests the correct execution of the Bot
  */
-@SuppressWarnings("unchecked")
 public class BotTest {
 
     private Bot bot;
-    private Twitter twitter = mock(Twitter.class);
-    private Client stream = mock(Client.class);
-    private Configuration config = mock(Configuration.class);
-    private BlockingQueue<String> queue = mock(BlockingQueue.class);
+    private HosebirdClient stream = mock(HosebirdClient.class);
+    private Prop config = mock(Prop.class);
 
     @Before
     public void setup(){
-        bot = new Bot(config, twitter, stream, queue);
+        bot = new Bot(config, stream);
     }
 
     @Test

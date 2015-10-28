@@ -25,8 +25,10 @@ public class JsonParser {
 
     final static Logger LOGGER = LoggerFactory.getLogger(JsonParser.class);
 
+    private final Prop config;
 
-    public JsonParser() {
+    public JsonParser(Prop config) {
+        this.config = config;
     }
 
     public ParsedJson parse(String toParse) {
@@ -87,7 +89,7 @@ public class JsonParser {
     private boolean isEvent(JsonNode event_node, JsonNode event_source_id) {
         return !event_node.isMissingNode() &&
                 !event_source_id.isMissingNode() &&
-                event_source_id.getLongValue() != Prop.getInstance().SYTAC_USER_ID;
+                event_source_id.getLongValue() != config.SYTAC_USER_ID;
     }
 
     private boolean isDirectMessage(JsonNode tweet) {
@@ -98,9 +100,9 @@ public class JsonParser {
 
 
         return direct_msg.isValueNode() &&
-                direct_msgStr.toLowerCase().contains(Prop.getInstance().FLAG_KEYWORD) && //if direct_msg contains the CTF flag
+                direct_msgStr.toLowerCase().contains(config.FLAG_KEYWORD) && //if direct_msg contains the CTF flag
                 !direct_msg_senderId.isMissingNode() &&
-                direct_msg_senderId.getLongValue() != Prop.getInstance().SYTAC_USER_ID;
+                direct_msg_senderId.getLongValue() != config.SYTAC_USER_ID;
     }
 
     private boolean isMention(JsonNode tweet) {
@@ -113,13 +115,13 @@ public class JsonParser {
     }
 
     private boolean isNotFromSelf(JsonNode tweet) {
-        return Prop.getInstance().SYTAC_USER_ID != tweet.path("user").path("id").getLongValue();
+        return config.SYTAC_USER_ID != tweet.path("user").path("id").getLongValue();
     }
 
     private boolean containsCTFHashTag(JsonNode tweet) {
         if(tweet.has("text")) {
             JsonNode message = tweet.path("text");
-            return message.getTextValue().toLowerCase().contains(Prop.getInstance().FLAG_KEYWORD);
+            return message.getTextValue().toLowerCase().contains(config.FLAG_KEYWORD);
         }
 
         return false;
