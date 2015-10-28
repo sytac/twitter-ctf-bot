@@ -13,7 +13,7 @@ import com.sytac.twitter_ctf_bot.model.Event;
 import com.sytac.twitter_ctf_bot.model.Mention;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
 import com.sytac.twitter_ctf_bot.model.Unknown;
-import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
+import com.sytac.twitter_ctf_bot.model.enumeration.MessageType;
 
 /**
  * The JsonParser class
@@ -33,7 +33,7 @@ public class JsonParser {
 
     public ParsedJson parse(String toParse) {
         ObjectMapper mapper = new ObjectMapper();
-        ParsedJson parsed = new Unknown(null, MSG_TYPE.UNKNOWN);
+        ParsedJson parsed = new Unknown(null, MessageType.UNKNOWN);
         try {
             final JsonNode node = mapper.readTree(toParse);
 
@@ -46,9 +46,9 @@ public class JsonParser {
             } else if (isDirectMessage(node)) {
                 processDirectMessage(node);
             } else if (isEvent(event_node, event_source_id)) {
-                parsed = new Event(node, MSG_TYPE.EVENT);
+                parsed = new Event(node, MessageType.EVENT);
             } else {
-                parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
+                parsed = new Unknown(node, MessageType.UNKNOWN);
                 LOGGER.warn("The JSON received isn't a ctf-related message: " + node.toString());
             }
         } catch (IOException e) {
@@ -64,7 +64,7 @@ public class JsonParser {
         final JsonNode direct_msg_name = tweet.path("direct_message").path("sender").path("screen_name"); //present in case of a DM
         final String direct_msgStr = direct_msg.getTextValue();//present in case of a DM
 
-        DM json = new DM(tweet, MSG_TYPE.DM);
+        DM json = new DM(tweet, MessageType.DM);
         json.setUser_Id(direct_msg_senderId.getLongValue());
         json.setUser_name(direct_msg_name.getTextValue());
         json.setDm_string(direct_msgStr);
@@ -74,7 +74,7 @@ public class JsonParser {
         final JsonNode participant = node.path("user"); //present in case of a mention
         final JsonNode participant_name = node.path("user").path("screen_name"); //present in case of a mention
 
-        Mention json = new Mention(node, MSG_TYPE.MENTION);
+        Mention json = new Mention(node, MessageType.MENTION);
         json.setUser_Id(participant.path("id").getLongValue());
         json.setUser_name(participant_name.getTextValue());
         json.setUser_description(participant.path("description").getTextValue());

@@ -2,11 +2,11 @@ package com.sytac.twitter_ctf_bot.model;
 
 import org.codehaus.jackson.JsonNode;
 
-import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
+import com.sytac.twitter_ctf_bot.model.enumeration.MessageType;
 
 public abstract class Raw implements ParsedJson{
 
-	protected MSG_TYPE type;
+	protected MessageType type;
 	private JsonNode root;
 	
 	
@@ -27,11 +27,11 @@ public abstract class Raw implements ParsedJson{
 		root = rt;
 	}
 	
-	public MSG_TYPE getType(){
+	public MessageType getType(){
 		return type;
 	}
 	
-	public void setType(MSG_TYPE t){
+	public void setType(MessageType t){
 		this.type = t;
 	}
 	

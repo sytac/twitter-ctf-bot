@@ -29,6 +29,17 @@ public class HosebirdClient {
 				.endpoint(userEndpoint)
 				.processor(new StringDelimitedProcessor(msgQueue));
 		hosebirdClient = builder.build();
+
+		installShutdownHook();
+	}
+
+	private void installShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
+			@Override
+			public void run(){
+				hosebirdClient.stop();
+			}
+		});
 	}
 
 	public void connect() {

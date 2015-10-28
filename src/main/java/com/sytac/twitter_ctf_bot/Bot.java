@@ -1,6 +1,5 @@
 package com.sytac.twitter_ctf_bot;
 
-import com.mashape.unirest.http.Unirest;
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
@@ -8,7 +7,6 @@ import com.sytac.twitter_ctf_bot.model.ParsedJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -31,18 +29,6 @@ public class Bot {
 	}
 
 	public void run(){
-		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
-            @Override
-            public void run(){
-                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
-                stream.stop();
-                try {
-					Unirest.shutdown();
-				} catch (IOException e) {
-					 LOGGER.error("error while shutting down Unirest Client: ", e);
-				}
-            }
-        });		
 		try{
 			BlockingQueue<String> incoming = new LinkedBlockingQueue<>(1000);
 			BlockingQueue<ParsedJson> messages = new LinkedBlockingQueue<>(1000);

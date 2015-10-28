@@ -2,7 +2,7 @@ package com.sytac.twitter_ctf_bot.model;
 
 import org.codehaus.jackson.JsonNode;
 
-import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
+import com.sytac.twitter_ctf_bot.model.enumeration.MessageType;
 /**
  * Mention model class
  * @author Tonino Catapano - tonino.catapano@sytac.io
@@ -18,9 +18,9 @@ public class Mention extends Raw implements ParsedJson{
 		super(rt);
 	}
 	
-	public Mention(JsonNode rt, MSG_TYPE msg_type) {
+	public Mention(JsonNode rt, MessageType messageType) {
 		super(rt);
-		super.type = msg_type;
+		super.type = messageType;
 	}
 
 	public String getMentionText() {

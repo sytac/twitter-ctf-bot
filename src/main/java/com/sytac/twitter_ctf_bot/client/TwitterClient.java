@@ -10,6 +10,8 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
+import java.io.IOException;
+
 public class TwitterClient {
 
 	private Twitter twitter4jClient;

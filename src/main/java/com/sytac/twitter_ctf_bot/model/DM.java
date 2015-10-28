@@ -2,7 +2,7 @@ package com.sytac.twitter_ctf_bot.model;
 
 import org.codehaus.jackson.JsonNode;
 
-import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
+import com.sytac.twitter_ctf_bot.model.enumeration.MessageType;
 
 /**
  * Direct Message model class
@@ -17,9 +17,9 @@ public class DM extends Raw implements ParsedJson{
 		super(rt);
 	}
 	
-	public DM(JsonNode rt, MSG_TYPE msg_type) {
+	public DM(JsonNode rt, MessageType messageType) {
 		super(rt);
-		super.type = msg_type;
+		super.type = messageType;
 	}
 
 	public String getDm_string() {
