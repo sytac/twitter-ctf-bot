@@ -1,46 +1,31 @@
 package com.sytac.twitter_ctf_bot;
 
-import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.twitter.hbc.core.Client;
-import com.twitter.hbc.core.Hosts;
-
-import twitter4j.DirectMessage;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-
+/**
+ * The reading theard which consume the twitter user stream
+ * @author Tonino Catapano - tonino.catapano@sytac.io
+ *
+ */
 public class ReadingThread extends Thread{
 
 	final static Logger LOGGER = LoggerFactory.getLogger(ReadingThread.class);
-	
 
-	
-
-	/** Instances variables initialized in the constructor **/
 	private final BlockingQueue<String> _msgQueue;
 	private final Client _hosebirdClient;
 	
-	//private final Integer _partecipantsCount;
 	
-	public ReadingThread(BlockingQueue<String> msgQueue, Client hosebirdClient,
-			Twitter twitter4jClient, Integer partecipantsNumber, Properties propFile) {
-
-		_hosebirdClient = hosebirdClient;
+	public ReadingThread(BlockingQueue<String> msgQueue) {
+		_hosebirdClient = HosebirdClient.getInstance().getClient();
 		_msgQueue = msgQueue;
-		
-		//_partecipantsCount = partecipantsNumber;
 	}
 	
 
-	
 	/**
 	 * The loop that will intercept and handle the incoming messages for Sytac
 	 */
@@ -55,11 +40,5 @@ public class ReadingThread extends Thread{
 			LOGGER.error(e.getMessage(), e);
 		}
 	 }
-	 
-	
-	
-	
-	 
-	 
 	 
 }
