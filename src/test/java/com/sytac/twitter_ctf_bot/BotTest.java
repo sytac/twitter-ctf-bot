@@ -18,7 +18,7 @@ public class BotTest {
 
     @Before
     public void setup(){
-        bot = new Bot(config, stream);
+        bot = new Bot(config, stream, null);
     }
 
     @Test

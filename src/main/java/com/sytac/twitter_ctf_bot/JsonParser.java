@@ -32,28 +32,27 @@ public class JsonParser {
 
     public ParsedJson parse(String toParse) {
         ObjectMapper mapper = new ObjectMapper();
-        ParsedJson parsed = new Unknown(null, MSG_TYPE.UNKNOWN);
-        try {
-            final JsonNode node = mapper.readTree(toParse);
+        JsonNode node = null;
+		try {
+			node = mapper.readTree(toParse);
+		} catch (IOException e1) {
+			 LOGGER.error("I/O Error during the parsing: ", e1);
+		}
+        ParsedJson parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
+        /** OTHER NODES**/
+        final JsonNode event_node = node.path("event"); // present in case of a event message
+        final JsonNode event_source_id = node.path("source").path("id"); //id of the new follower
 
-            /** OTHER NODES**/
-            final JsonNode event_node = node.path("event"); // present in case of a event message
-            final JsonNode event_source_id = node.path("source").path("id"); //id of the new follower
-
-            if (isMention(node)) {
-                parsed = getMention(node);
-            } else if (isDirectMessage(node)) {
-                processDirectMessage(node);
-            } else if (isEvent(event_node, event_source_id)) {
-                parsed = new Event(node, MSG_TYPE.EVENT);
-            } else {
-                parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
-                LOGGER.warn("The JSON received isn't a ctf-related message: " + node.toString());
-            }
-        } catch (IOException e) {
-            LOGGER.error("I/O Error during the parsing: ", e);
+        if (isMention(node)) {
+            parsed = getMention(node);
+        } else if (isDirectMessage(node)) {
+            processDirectMessage(node);
+        } else if (isEvent(event_node, event_source_id)) {
+            parsed = new Event(node, MSG_TYPE.EVENT);
+        } else {
+            parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
+            LOGGER.warn("The JSON received isn't a ctf-related message: " + node.toString());
         }
-
         return parsed;
     }
 

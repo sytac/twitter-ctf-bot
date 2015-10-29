@@ -40,7 +40,7 @@ public class BotApp {
         BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
         HosebirdClient client = new HosebirdClient(configuration, queue);
 //            Twitter twitter = initializeTwit4j(configuration);
-        new Bot(configuration, client).run();
+        new Bot(configuration, client, queue).run();
 
     }
 

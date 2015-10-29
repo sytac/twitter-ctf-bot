@@ -27,10 +27,13 @@ public class Bot {
 	
 	private final Prop configuration;
 	private final HosebirdClient stream;
+	private final BlockingQueue<String> inMessages;
+	BlockingQueue<String> outMessages;
 	
-	public Bot(Prop configuration, HosebirdClient stream) {
+	public Bot(Prop configuration, HosebirdClient stream, BlockingQueue<String> inMessages) {
 		this.configuration = configuration;
 		this.stream = stream;
+		this.inMessages = inMessages;
 	}
 
 	public void run(){
@@ -47,7 +50,6 @@ public class Bot {
             }
         });		
 		try{
-			BlockingQueue<String> inMessages = new LinkedBlockingQueue<>(1000);
 			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(1000);
 			stream.connect();
 			TwitterClient twitter = new TwitterClient(configuration);
