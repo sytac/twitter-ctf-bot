@@ -37,6 +37,7 @@ public class JsonParser {
 			node = mapper.readTree(toParse);
 		} catch (IOException e1) {
 			 LOGGER.error("I/O Error during the parsing: ", e1);
+			 return null;
 		}
         ParsedJson parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
         /** OTHER NODES**/
@@ -46,33 +47,34 @@ public class JsonParser {
         if (isMention(node)) {
             parsed = getMention(node);
         } else if (isDirectMessage(node)) {
-            processDirectMessage(node);
+            parsed = getDM(node);
         } else if (isEvent(event_node, event_source_id)) {
-            parsed = new Event(node, MSG_TYPE.EVENT);
+            parsed = getEvent(node);
         } else {
-            parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
-            LOGGER.warn("The JSON received isn't a ctf-related message: " + node.toString());
+            LOGGER.debug("The JSON received isn't a ctf-related message: " + node.toString());
         }
         return parsed;
     }
 
-    private void processDirectMessage(JsonNode tweet) {
-        final JsonNode direct_msg = tweet.path("direct_message").path("text"); //present in case of a DM
-        final JsonNode direct_msg_senderId = tweet.path("direct_message").path("sender").path("id"); //present in case of a DM
-        final JsonNode direct_msg_name = tweet.path("direct_message").path("sender").path("screen_name"); //present in case of a DM
-        final String direct_msgStr = direct_msg.getTextValue();//present in case of a DM
-
-        DM json = new DM(tweet, MSG_TYPE.DM);
-        json.setUser_Id(direct_msg_senderId.getLongValue());
-        json.setUser_name(direct_msg_name.getTextValue());
-        json.setDm_string(direct_msgStr);
+    private DM getDM(JsonNode tweet) {
+    	final DM json = new DM(tweet, MSG_TYPE.DM);
+        json.setUser_screenName(tweet.path("direct_message").path("sender").path("screen_name").getTextValue());
+        json.setUser_name(tweet.path("direct_message").path("sender").path("name").getTextValue());
+        json.setUser_Id(tweet.path("direct_message").path("sender").path("id").getLongValue());
+        json.setUser_url(tweet.path("direct_message").path("sender").path("url").getTextValue());
+        json.setDm_string(tweet.path("direct_message").path("text").getTextValue());
+        json.setUser_location(tweet.path("direct_message").path("sender").path("location").getTextValue());
+        json.setUser_description(tweet.path("direct_message").path("sender").path("description").getTextValue());
+        json.setUser_followerCount(tweet.path("direct_message").path("sender").path("followers_count").getLongValue());
+        json.setUser_img(tweet.path("direct_message").path("sender").path("profile_image_url").getTextValue());
+        return json;
     }
 
     private Mention getMention(JsonNode node) {
         final JsonNode participant = node.path("user"); //present in case of a mention
         final JsonNode participant_name = node.path("user").path("screen_name"); //present in case of a mention
 
-        Mention json = new Mention(node, MSG_TYPE.MENTION);
+        final Mention json = new Mention(node, MSG_TYPE.MENTION);
         json.setUser_Id(participant.path("id").getLongValue());
         json.setUser_name(participant_name.getTextValue());
         json.setUser_description(participant.path("description").getTextValue());
@@ -80,10 +82,27 @@ public class JsonParser {
         json.setUser_location(participant.path("location").getTextValue());
         json.setUser_url(participant.path("url").getTextValue());
         json.setUser_followerCount(participant.path("followers_count").getLongValue());
-        json.setUser_img(participant.path("profile_background_image_url").getTextValue());
+        json.setUser_img(participant.path("profile_image_url").getTextValue());
         return json;
     }
 
+    private Event getEvent(JsonNode node) {
+        final JsonNode user = node.path("source");
+        final Event json = new Event(node, MSG_TYPE.EVENT);
+        
+        json.setEventName(node.path("event").getTextValue());
+        json.setUser_Id(user.path("id").getLongValue());
+        json.setUser_name(user.getTextValue());
+        json.setUser_description(user.path("description").getTextValue());
+        json.setUser_screenName(user.path("screen_name").getTextValue());
+        json.setUser_location(user.path("location").getTextValue());
+        json.setUser_url(user.path("url").getTextValue());
+        json.setUser_followerCount(user.path("followers_count").getLongValue());
+        json.setUser_img(user.path("profile_image_url").getTextValue());
+        return json;
+    }
+    
+    
     private boolean isEvent(JsonNode event_node, JsonNode event_source_id) {
         return !event_node.isMissingNode() &&
                 !event_source_id.isMissingNode() &&

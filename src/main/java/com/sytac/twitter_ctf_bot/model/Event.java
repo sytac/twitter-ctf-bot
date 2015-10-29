@@ -10,6 +10,16 @@ import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
  */
 public class Event extends Raw implements ParsedJson{
 
+	private String eventName;
+	
+	public String getEventName() {
+		return eventName;
+	}
+
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
+
 	public Event(JsonNode rt) {
 		super(rt);
 	}

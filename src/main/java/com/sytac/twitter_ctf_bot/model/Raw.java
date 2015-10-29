@@ -1,9 +1,11 @@
 package com.sytac.twitter_ctf_bot.model;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 
+@JsonIgnoreProperties({"root"})
 public abstract class Raw implements ParsedJson{
 
 	protected MSG_TYPE type;
