@@ -2,10 +2,9 @@ package com.sytac.twitter_ctf_bot;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.DM;
@@ -23,7 +22,7 @@ import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
  */
 public class JsonParser {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(JsonParser.class);
+	private static final Logger LOGGER = Logger.getLogger(JsonParser.class);
 
     private final Prop config;
 

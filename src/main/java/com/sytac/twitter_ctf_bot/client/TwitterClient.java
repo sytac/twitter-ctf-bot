@@ -1,8 +1,8 @@
 package com.sytac.twitter_ctf_bot.client;
 
+import org.apache.log4j.Logger;
+
 import com.sytac.twitter_ctf_bot.conf.Prop;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import twitter4j.DirectMessage;
 import twitter4j.Twitter;
@@ -13,7 +13,7 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterClient {
 
 	private Twitter twitter4jClient;
-	private final static Logger LOGGER = LoggerFactory.getLogger(TwitterClient.class);
+	private static final Logger LOGGER = Logger.getLogger(TwitterClient.class);
 
 	public  TwitterClient(Prop prop) {
 		ConfigurationBuilder cb = new ConfigurationBuilder();

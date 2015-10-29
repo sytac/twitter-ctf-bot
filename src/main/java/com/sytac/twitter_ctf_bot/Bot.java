@@ -5,12 +5,13 @@ import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.log4j.Logger;
 
 
 /**
@@ -20,8 +21,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Bot {
 	
-	private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-
+	
+	private static final Logger LOGGER = Logger.getLogger(Bot.class);
+	
+	
 	private final Prop configuration;
 	private final HosebirdClient stream;
 	
@@ -44,13 +47,13 @@ public class Bot {
             }
         });		
 		try{
-			BlockingQueue<String> incoming = new LinkedBlockingQueue<>(1000);
-			BlockingQueue<ParsedJson> messages = new LinkedBlockingQueue<>(1000);
+			BlockingQueue<String> inMessages = new LinkedBlockingQueue<>(1000);
+			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(1000);
 			stream.connect();
 			TwitterClient twitter = new TwitterClient(configuration);
-			new ReadingThread(configuration, stream, incoming, messages).start();
+			new ReadingThread(configuration, stream, inMessages, outMessages).start();
 			Processor processor = new Processor(configuration, twitter);
-			process(messages, processor);
+			process(outMessages, processor);
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encountered, closing the connection...");
@@ -59,7 +62,7 @@ public class Bot {
 	}
 
 	private void process(BlockingQueue<ParsedJson> messages, Processor processor) throws InterruptedException {
-		while(true) {
+		while(!stream.isDone()) {
 			ParsedJson message = messages.take();
 			processor.processMessage(message);
 		}

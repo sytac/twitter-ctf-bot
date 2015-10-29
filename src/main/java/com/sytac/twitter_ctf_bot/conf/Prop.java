@@ -6,8 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 /**
  * Class for the properties file
  * @author Tonino Catapano - tonino.catapano@sytac.io
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Prop {
 	
-	private final static Logger LOGGER = LoggerFactory.getLogger(Prop.class);
+	private static final Logger LOGGER = Logger.getLogger(Prop.class);
 
 	private Properties properties;
 
@@ -46,7 +45,7 @@ public class Prop {
 	public String PARTIC_NAME_KEY ;
 
 	public long SYTAC_USER_ID;
-
+	public int QUEUE_BUFFER_SIZE;
 	
 	public  Prop(String path) {
 		InputStream in = null;
@@ -91,5 +90,6 @@ public class Prop {
 		PARTIC_NAME_KEY = properties.getProperty("PARTIC_NAME_KEY");
 		SYTAC_USER_ID = Long.valueOf(properties.getProperty("SYTAC_USER_ID"));
 		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
+		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
 	}
 }

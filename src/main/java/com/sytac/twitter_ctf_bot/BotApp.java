@@ -1,26 +1,13 @@
 package com.sytac.twitter_ctf_bot;
 
-import com.sytac.twitter_ctf_bot.client.HosebirdClient;
-import com.sytac.twitter_ctf_bot.conf.Prop;
-import com.twitter.hbc.ClientBuilder;
-import com.twitter.hbc.core.Client;
-import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.Hosts;
-import com.twitter.hbc.core.HttpHosts;
-import com.twitter.hbc.core.endpoint.UserstreamEndpoint;
-import com.twitter.hbc.core.processor.StringDelimitedProcessor;
-import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.OAuth1;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
-import twitter4j.conf.ConfigurationBuilder;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.log4j.Logger;
+
+import com.sytac.twitter_ctf_bot.client.HosebirdClient;
+import com.sytac.twitter_ctf_bot.conf.Prop;
 
 /**
  * Application that bootstraps the Capture The Flag Twitter bot
@@ -30,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class BotApp {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BotApp.class);
+	private static final Logger LOGGER = Logger.getLogger(BotApp.class);
 
     /**
      * Reads the configuration file location from the program arguments and starts the process
@@ -42,7 +29,7 @@ public class BotApp {
         if (fileExists(configFile)) {
             runBot(configFile);
         } else {
-            LOGGER.error("No configuration file found at location: {}", configFile);
+            LOGGER.error("No configuration file found at location: {}");
             throw new IllegalArgumentException();
         }
     }

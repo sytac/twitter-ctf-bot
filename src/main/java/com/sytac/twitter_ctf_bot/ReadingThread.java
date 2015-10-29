@@ -1,31 +1,31 @@
 package com.sytac.twitter_ctf_bot;
 
+import java.util.concurrent.BlockingQueue;
+
+import org.apache.log4j.Logger;
+
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BlockingQueue;
 
 /**
- * The reading theard which consume the twitter user stream
+ * The reading thread which consume the twitter user stream
  *
  * @author Tonino Catapano - tonino.catapano@sytac.io
  */
 public class ReadingThread extends Thread {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ReadingThread.class);
+	private static final Logger LOGGER = Logger.getLogger(ReadingThread.class);
 
-    private final BlockingQueue<String> _incoming;
-    private final BlockingQueue<ParsedJson> _parsedMessages;
+    private final BlockingQueue<String> _inMessages;
+    private final BlockingQueue<ParsedJson> _outMessages;
     private final HosebirdClient _hosebirdClient;
     private final JsonParser _parser;
 
-    public ReadingThread(Prop props, HosebirdClient stream, BlockingQueue<String> incoming, BlockingQueue<ParsedJson> messages) {
+    public ReadingThread(Prop props, HosebirdClient stream, BlockingQueue<String> incoming, BlockingQueue<ParsedJson> outgoing) {
         _hosebirdClient = stream;
-        _incoming = incoming;
-        _parsedMessages = messages;
+        _inMessages = incoming;
+        _outMessages = outgoing;
         _parser = new JsonParser(props);
     }
 
@@ -36,9 +36,9 @@ public class ReadingThread extends Thread {
     public void run() {
         try {
             while (!_hosebirdClient.isDone()) {
-                String msg = _incoming.take();
+                String msg = _inMessages.take();
 				ParsedJson parsed = _parser.parse(msg);
-                _parsedMessages.add(parsed);
+				_outMessages.add(parsed);
             }
             _hosebirdClient.stop();
         } catch (Exception e) {
