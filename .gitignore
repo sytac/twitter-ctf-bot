@@ -1,2 +1,4 @@
-resources
+#resources
+bot.log
+config.properties
 target

@@ -50,7 +50,7 @@ public class Bot {
             }
         });		
 		try{
-			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(1000);
+			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
 			stream.connect();
 			TwitterClient twitter = new TwitterClient(configuration);
 			new ReadingThread(configuration, stream, inMessages, outMessages).start();
