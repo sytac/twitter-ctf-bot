@@ -48,7 +48,7 @@ public class TwitterClient {
 			 LOGGER.info("Sent: " + msg.getText() + " to @" + msg.getRecipientScreenName());
 			 return 0;
 		 } catch (TwitterException e) {
-			LOGGER.error("Error during the DM to the partecipant " + userId + ": TWITTER4J exception, try to mention him/her ");
+			LOGGER.error("Error during the DM to the partecipant " + userId + ": TWITTER4J exception, trying to mention him/her..", e);
 			try {
 				twitter4jClient.updateStatus(String.format(mentionMessage, userName));
 				return 1;

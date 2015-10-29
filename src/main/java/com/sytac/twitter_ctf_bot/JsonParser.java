@@ -41,14 +41,13 @@ public class JsonParser {
 		}
         ParsedJson parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
         /** OTHER NODES**/
-        final JsonNode event_node = node.path("event"); // present in case of a event message
-        final JsonNode event_source_id = node.path("source").path("id"); //id of the new follower
+
 
         if (isMention(node)) {
             parsed = getMention(node);
         } else if (isDirectMessage(node)) {
             parsed = getDM(node);
-        } else if (isEvent(event_node, event_source_id)) {
+        } else if (isEvent(node)) {
             parsed = getEvent(node);
         } else {
             LOGGER.debug("The JSON received isn't a ctf-related message: " + node.toString());
@@ -103,7 +102,10 @@ public class JsonParser {
     }
     
     
-    private boolean isEvent(JsonNode event_node, JsonNode event_source_id) {
+    private boolean isEvent(JsonNode node) {
+        final JsonNode event_node = node.path("event"); // present in case of a event message
+        final JsonNode event_source_id = node.path("source").path("id"); //id of the new follower
+        
         return !event_node.isMissingNode() &&
                 !event_source_id.isMissingNode() &&
                 event_source_id.getLongValue() != config.SYTAC_USER_ID;

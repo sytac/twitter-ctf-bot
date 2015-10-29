@@ -9,8 +9,8 @@ import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
 
 /**
- * The reading thread which consume the twitter user stream
- *
+ * The reading thread which consume the twitter user input stream
+ * @since 1.0
  * @author Tonino Catapano - tonino.catapano@sytac.io
  */
 public class ReadingThread extends Thread {

@@ -39,8 +39,10 @@ public class BotApp {
         /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
         BlockingQueue<String> queue = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
         HosebirdClient client = new HosebirdClient(configuration, queue);
-//            Twitter twitter = initializeTwit4j(configuration);
+        //Twitter twitter = initializeTwit4j(configuration);
+        //new RestControllerTh().start();
         new Bot(configuration, client, queue).run();
+        
 
     }
 
