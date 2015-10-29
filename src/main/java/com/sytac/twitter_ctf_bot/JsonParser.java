@@ -42,15 +42,16 @@ public class JsonParser {
         ParsedJson parsed = new Unknown(node, MSG_TYPE.UNKNOWN);
         /** OTHER NODES**/
 
-
-        if (isMention(node)) {
+        if (isFromSelf(node)){
+        	LOGGER.info("The JSON received is an outgoing message, skip it. ");
+        }else if (isMention(node)) {
             parsed = getMention(node);
         } else if (isDirectMessage(node)) {
             parsed = getDM(node);
         } else if (isEvent(node)) {
             parsed = getEvent(node);
         } else {
-            LOGGER.debug("The JSON received isn't a ctf-related message: " + node.toString());
+            LOGGER.info("The JSON received isn't a ctf-related message: " + node.toString());
         }
         return parsed;
     }
@@ -82,6 +83,7 @@ public class JsonParser {
         json.setUser_url(participant.path("url").getTextValue());
         json.setUser_followerCount(participant.path("followers_count").getLongValue());
         json.setUser_img(participant.path("profile_image_url").getTextValue());
+        json.setMentionText(node.path("text").getTextValue());
         return json;
     }
 
@@ -134,7 +136,15 @@ public class JsonParser {
     }
 
     private boolean isNotFromSelf(JsonNode tweet) {
-        return config.SYTAC_USER_ID != tweet.path("user").path("id").getLongValue();
+        return (config.SYTAC_USER_ID != tweet.path("user").path("id").getLongValue() &&
+        		 config.SYTAC_USER_ID != tweet.path("sender").path("id").getLongValue() &&
+        		 config.SYTAC_USER_ID != tweet.path("source").path("id").getLongValue());
+    }
+    
+    private boolean isFromSelf(JsonNode tweet) {
+        return (config.SYTAC_USER_ID == tweet.path("id").getLongValue() ||
+        		 config.SYTAC_USER_ID == tweet.path("direct_message").path("sender").path("id").getLongValue() ||
+        		 config.SYTAC_USER_ID == tweet.path("user").path("source").path("id").getLongValue());
     }
 
     private boolean containsCTFHashTag(JsonNode tweet) {

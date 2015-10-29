@@ -61,15 +61,15 @@ public class Processor {
 					byte res = twitter.dm(mention.getUser_name(), mention.getUser_Id(), followSuccess ? _prop.WELCOME_PARTICIPANT_MESSAGE : _prop.COULDNOT_FOLLOW_MESSAGE, _prop.WELCOME_NO_FOLLOW_MESSAGE); 
 					final String mess;
 					switch(res){
-						case 0: mess = "New participant handled correctly with a DM ";  break;
-						case 1: mess = "New participant handled with a Mention "; break;
-						default: mess = "Could not handle the new participant "; break;
+						case 0: mess = "New participant handled correctly with a DM: ";  break;
+						case 1: mess = "New participant handled with a Mention: "; break;
+						default: mess = "Could not handle the new participant: "; break;
 					}
 					LOGGER.info(mess + mention.getUser_name());	
 				break;
 				
 				default: 
-					LOGGER.warn("The JSON received isn't a ctf-related message: \n" + mapper.writeValueAsString(raw.getRoot()));
+					
 				break;	
 			} 
 		}catch(IOException e){
