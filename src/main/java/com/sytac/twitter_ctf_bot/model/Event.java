@@ -1,7 +1,13 @@
 package com.sytac.twitter_ctf_bot.model;
 
-import org.codehaus.jackson.JsonNode;
+import java.io.IOException;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.JsonMappingException;
+
+import com.sytac.twitter_ctf_bot.client.TwitterClient;
+import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 /**
  * Event model class
@@ -27,6 +33,13 @@ public class Event extends Raw implements ParsedJson{
 	public Event(JsonNode rt, MSG_TYPE msg_type) {
 		super(rt);
 		super.type = msg_type;
+	}
+
+	@Override
+	public byte handleMe(Prop p, TwitterClient twitter)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		LOGGER.info("New event message received: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
+		return 0;
 	}
 
 }

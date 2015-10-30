@@ -1,13 +1,19 @@
 package com.sytac.twitter_ctf_bot.model;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 
 @JsonIgnoreProperties({"root"})
 public abstract class Raw implements ParsedJson{
 
+	protected static final Logger LOGGER = Logger.getLogger(Raw.class);
+	
+	ObjectMapper mapper = new ObjectMapper();
+	
 	protected MSG_TYPE type;
 	private JsonNode root;
 	
@@ -104,7 +110,5 @@ public abstract class Raw implements ParsedJson{
 	public void setUser_img(String user_img) {
 		this.user_img = user_img;
 	}
-	
-
 	
 }

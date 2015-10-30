@@ -1,5 +1,6 @@
 package com.sytac.twitter_ctf_bot;
 
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -22,13 +23,14 @@ public class Bot {
 	private static final Logger LOGGER = Logger.getLogger(Bot.class);
 	
 	
-	private final Prop configuration;
+	private final Prop conf;
 	private final HosebirdClient stream;
 	private final BlockingQueue<String> inMessages;
+	private TwitterClient twitter;
 	BlockingQueue<String> outMessages;
 	
 	public Bot(Prop configuration, HosebirdClient stream, BlockingQueue<String> inMessages) {
-		this.configuration = configuration;
+		this.conf = configuration;
 		this.stream = stream;
 		this.inMessages = inMessages;
 	}
@@ -47,12 +49,11 @@ public class Bot {
             }
         });		
 		try{
-			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
+			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(conf.QUEUE_BUFFER_SIZE);
 			stream.connect();
-			TwitterClient twitter = new TwitterClient(configuration);
-			new ReadingThread(configuration, stream, inMessages, outMessages).start();
-			Processor processor = new Processor(configuration, twitter);
-			process(outMessages, processor);
+			twitter = new TwitterClient(conf);
+			new ReadingThread(conf, stream, inMessages, outMessages).start();
+			process(outMessages);
 		}catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encountered, closing the connection...");
@@ -60,10 +61,15 @@ public class Bot {
 		}
 	}
 
-	private void process(BlockingQueue<ParsedJson> messages, Processor processor) throws InterruptedException {
+
+	
+	private void process(BlockingQueue<ParsedJson> messages) throws InterruptedException {
 		while(!stream.isDone()) {
-			ParsedJson message = messages.take();
-			processor.processMessage(message);
+			try {
+				messages.take().handleMe(conf, twitter);
+			} catch (IOException e) {
+				LOGGER.error(e.getMessage(),e);
+			}
 		}
 	}
 
