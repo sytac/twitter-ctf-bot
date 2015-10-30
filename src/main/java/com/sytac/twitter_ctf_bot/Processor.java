@@ -44,7 +44,7 @@ public class Processor {
 						twitter.dmOrMention(dm.getUser_name(), dm.getUser_Id(), _prop.BAD, _prop.PLEASE_FOLLOW);
 						return;
 					}
-					boolean ok = processAnswer(answer[1]);
+					boolean ok = processAnswer(answer[1].trim());
 					twitter.dmOrMention(dm.getUser_name(), dm.getUser_Id(), ok  ? _prop.RIGHT_ANSWER : _prop.WRONG_ANSWER, _prop.PLEASE_FOLLOW); 
 					LOGGER.info("New answer from participant: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dm));
 				break;	

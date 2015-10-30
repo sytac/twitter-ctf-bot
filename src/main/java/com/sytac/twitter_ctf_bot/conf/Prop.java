@@ -27,7 +27,7 @@ public class Prop {
 	public String secret;
 
 	
-	private List<String> answers;
+	private List<String> ANSWERS;
 	public String PLEASE_FOLLOW;
 	/** User related parameters **/
 	public String WELCOME_PARTICIPANT;
@@ -95,13 +95,13 @@ public class Prop {
 		SYTAC_USER_ID = Long.valueOf(properties.getProperty("SYTAC_USER_ID"));
 		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
 		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
-		answers = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
+		ANSWERS = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
 		PLEASE_FOLLOW = properties.getProperty("PLEASE_FOLLOW");
 		
 	}
 
 	public List<String> getAnswers() {
-		return answers;
+		return ANSWERS;
 	}
 	
 	private String[] splitAnswers(String answers){
