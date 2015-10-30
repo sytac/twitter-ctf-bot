@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -24,15 +26,17 @@ public class Prop {
 	public String token;
 	public String secret;
 
-
+	
+	private List<String> answers;
+	public String PLEASE_FOLLOW;
 	/** User related parameters **/
-	public String WELCOME_PARTICIPANT_MESSAGE;
-	public String COULDNOT_FOLLOW_MESSAGE;
-	public String RIGHT_ANSWER_MESSAGE;
-	public String WRONG_ANSWER_MESSAGE;
-	public String WINNER_MESSAGE;
-	public String BAD_MESSAGE;
-	public String WELCOME_NO_FOLLOW_MESSAGE;
+	public String WELCOME_PARTICIPANT;
+	public String COULDNOT_FOLLOW;
+	public String RIGHT_ANSWER;
+	public String WRONG_ANSWER;
+	public String WINNER;
+	public String BAD;
+	public String WELCOME_NO_FOLLOW;
 
 	public String FLAG_KEYWORD;
 
@@ -75,13 +79,13 @@ public class Prop {
 		consumerSecret = properties.getProperty("consumerSecret");
 		token = properties.getProperty("token");
 		secret = properties.getProperty("secret");
-		WELCOME_PARTICIPANT_MESSAGE  = properties.getProperty("WELCOME_PARTICIPANT_MESSAGE");
-		COULDNOT_FOLLOW_MESSAGE   = properties.getProperty("COULDNOT_FOLLOW_MESSAGE");
-		RIGHT_ANSWER_MESSAGE  = properties.getProperty("RIGHT_ANSWER_MESSAGE");
-		WRONG_ANSWER_MESSAGE  = properties.getProperty("WRONG_ANSWER_MESSAGE");
-		WINNER_MESSAGE  = properties.getProperty("WINNER_MESSAGE");
-		BAD_MESSAGE  = properties.getProperty("BAD_MESSAGE");
-		WELCOME_NO_FOLLOW_MESSAGE = properties.getProperty("WELCOME_NO_FOLLOW_MESSAGE");
+		WELCOME_PARTICIPANT  = properties.getProperty("WELCOME_PARTICIPANT");
+		COULDNOT_FOLLOW   = properties.getProperty("COULDNOT_FOLLOW");
+		RIGHT_ANSWER  = properties.getProperty("RIGHT_ANSWER");
+		WRONG_ANSWER  = properties.getProperty("WRONG_ANSWER");
+		WINNER  = properties.getProperty("WINNER");
+		BAD  = properties.getProperty("BAD");
+		WELCOME_NO_FOLLOW = properties.getProperty("WELCOME_NO_FOLLOW");
 		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
 		TWITTER_DM_ENDPOINT = properties.getProperty("TWITTER_DM_ENDPOINT");
 		SYTAC_REST_ENDPOINT = properties.getProperty("SYTAC_REST_ENDPOINT");
@@ -91,5 +95,16 @@ public class Prop {
 		SYTAC_USER_ID = Long.valueOf(properties.getProperty("SYTAC_USER_ID"));
 		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
 		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
+		answers = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
+		PLEASE_FOLLOW = properties.getProperty("PLEASE_FOLLOW");
+		
+	}
+
+	public List<String> getAnswers() {
+		return answers;
+	}
+	
+	private String[] splitAnswers(String answers){
+		return answers.split(";");
 	}
 }

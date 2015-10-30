@@ -41,11 +41,11 @@ public class Processor {
 					String answer[] = dm.getDm_string().toLowerCase().split(_prop.FLAG_KEYWORD);
 					if(answer.length < 2){
 						LOGGER.warn("The JSON received isn't a #ctf well formed message: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dm));
-						twitter.dm(dm.getUser_name(), dm.getUser_Id(), _prop.BAD_MESSAGE, _prop.WELCOME_NO_FOLLOW_MESSAGE);
+						twitter.dmOrMention(dm.getUser_name(), dm.getUser_Id(), _prop.BAD, _prop.PLEASE_FOLLOW);
 						return;
 					}
-					//boolean ok = RestClient.processAnswerToRemote(answer[1], dm.getUser_name(), dm.getUser_Id());
-					//twitter.dm(dm.getUser_name(), dm.getUser_Id(), ok ? _prop.RIGHT_ANSWER_MESSAGE : _prop.WRONG_ANSWER_MESSAGE, _prop.WELCOME_NO_FOLLOW_MESSAGE); 
+					boolean ok = processAnswer(answer[1]);
+					twitter.dmOrMention(dm.getUser_name(), dm.getUser_Id(), ok  ? _prop.RIGHT_ANSWER : _prop.WRONG_ANSWER, _prop.PLEASE_FOLLOW); 
 					LOGGER.info("New answer from participant: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dm));
 				break;	
 				
@@ -58,9 +58,8 @@ public class Processor {
 					Mention mention = (Mention) raw;
 					LOGGER.info("Received mention for #ctf: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mention));
 					boolean followSuccess = twitter.followParticipant(mention.getUser_Id());	
-					byte res = twitter.dm(mention.getUser_name(), mention.getUser_Id(), followSuccess ? _prop.WELCOME_PARTICIPANT_MESSAGE : _prop.COULDNOT_FOLLOW_MESSAGE, _prop.WELCOME_NO_FOLLOW_MESSAGE); 
 					final String mess;
-					switch(res){
+					switch(twitter.dmOrMention(mention.getUser_name(), mention.getUser_Id(), followSuccess ? _prop.WELCOME_PARTICIPANT : _prop.COULDNOT_FOLLOW, _prop.WELCOME_NO_FOLLOW)){
 						case 0: mess = "New participant handled correctly with a DM: ";  break;
 						case 1: mess = "New participant handled with a Mention: "; break;
 						default: mess = "Could not handle the new participant: "; break;
@@ -78,5 +77,9 @@ public class Processor {
 		   
 	 }
 
+	 
+	 private boolean processAnswer(String answer){
+		 return _prop.getAnswers().contains(answer);
+	 }
 	 
 }
