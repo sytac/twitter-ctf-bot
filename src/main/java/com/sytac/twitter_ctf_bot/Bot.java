@@ -27,8 +27,7 @@ public class Bot {
 	private final HosebirdClient stream;
 	private final BlockingQueue<String> inMessages;
 	private TwitterClient twitter;
-	BlockingQueue<String> outMessages;
-	
+
 	public Bot(Prop configuration, HosebirdClient stream, BlockingQueue<String> inMessages) {
 		this.conf = configuration;
 		this.stream = stream;
@@ -36,25 +35,13 @@ public class Bot {
 	}
 
 	public void run(){
-		Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
-            @Override
-            public void run(){
-                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
-                stream.stop();
-               /* try {
-					Unirest.shutdown();
-				} catch (IOException e) {
-					 LOGGER.error("error while shutting down Unirest Client: ", e);
-				}*/
-            }
-        });		
-		try{
+		try {
 			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(conf.QUEUE_BUFFER_SIZE);
 			stream.connect();
 			twitter = new TwitterClient(conf);
 			new ReadingThread(conf, stream, inMessages, outMessages).start();
 			process(outMessages);
-		}catch(Exception e){
+		} catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encountered, closing the connection...");
 			stream.stop();

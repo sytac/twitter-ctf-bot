@@ -8,17 +8,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Class for the properties file
- * @author Tonino Catapano - tonino.catapano@sytac.io
+ * Read configuration entries from a properties file
  *
+ * @author Tonino Catapano - tonino.catapano@sytac.io
+ * @author Carlo Sciolla - carlo.sciolla@sytac.io
  */
 public class Prop {
 	
-	private static final Logger LOGGER = Logger.getLogger(Prop.class);
-
-	private Properties properties;
+	private static final Logger LOGGER = LoggerFactory.getLogger(Prop.class);
 
 	//get the keys and tokens from the properties
 	public String consumerKey;
@@ -52,29 +53,17 @@ public class Prop {
 	public int QUEUE_BUFFER_SIZE;
 	
 	public  Prop(String path) {
-		InputStream in = null;
-		try {
-			in = Files.newInputStream(Paths.get(path));
-			if (path == null || path.isEmpty() || in == null){
-				LOGGER.error("Please specificate a valid path for the properties file in the first argument");
-				return;
-			}
-			properties = new Properties();
-			properties.load(in);
-
-		} catch(IOException e) {
-			LOGGER.error("Error while reading the properties file: "+ path, e);
-			throw new IllegalStateException(e);
-		} finally {
-			if(in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					LOGGER.error("Error while closing the properties file: "+ path, e);
-				}
-			}
+		if(noFileAtLocation(path)) {
+			LOGGER.error("No configuration file found at the provided location: {}", path);
+			throw new IllegalArgumentException("Please specify a valid location for the configuration file");
 		}
 
+		Properties properties = readProperties(path);
+		initProperties(properties);
+		
+	}
+
+	private void initProperties(Properties properties) {
 		consumerKey = properties.getProperty("consumerKey");
 		consumerSecret = properties.getProperty("consumerSecret");
 		token = properties.getProperty("token");
@@ -97,7 +86,33 @@ public class Prop {
 		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
 		ANSWERS = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
 		PLEASE_FOLLOW = properties.getProperty("PLEASE_FOLLOW");
-		
+	}
+
+	private Properties readProperties(String path) {
+		InputStream in = null;
+		Properties properties;
+		try {
+			in = Files.newInputStream(Paths.get(path));
+			properties = new Properties();
+			properties.load(in);
+		} catch(IOException e) {
+			LOGGER.error("Error while reading the properties file: "+ path, e);
+			throw new IllegalStateException(e);
+		} finally {
+			if(in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					LOGGER.error("Error while closing the properties file: "+ path, e);
+				}
+			}
+		}
+
+		return properties;
+	}
+
+	private boolean noFileAtLocation(String path) {
+		return !Files.isRegularFile(Paths.get(path));
 	}
 
 	public List<String> getAnswers() {

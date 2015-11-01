@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
+import org.slf4j.LoggerFactory;
 
 /**
  * Application that bootstraps the Capture The Flag Twitter bot
@@ -17,7 +18,7 @@ import com.sytac.twitter_ctf_bot.conf.Prop;
  */
 public class BotApp {
 
-	private static final Logger LOGGER = Logger.getLogger(BotApp.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BotApp.class);
 
     /**
      * Reads the configuration file location from the program arguments and starts the process
@@ -29,7 +30,7 @@ public class BotApp {
         if (fileExists(configFile)) {
             runBot(configFile);
         } else {
-            LOGGER.error("No configuration file found at location: {}");
+            LOGGER.error("No configuration file found at location: {}", configFile);
             throw new IllegalArgumentException();
         }
     }
@@ -39,11 +40,19 @@ public class BotApp {
         /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
         BlockingQueue<String> queue = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
         HosebirdClient client = new HosebirdClient(configuration, queue);
-        //Twitter twitter = initializeTwit4j(configuration);
-        //new RestControllerTh().start();
         new Bot(configuration, client, queue).run();
-        
 
+        installShudtownHook(client);
+    }
+
+    private static void installShudtownHook(HosebirdClient client) {
+        Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
+            @Override
+            public void run(){
+                LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
+                client.stop();
+            }
+        });
     }
 
     /**
