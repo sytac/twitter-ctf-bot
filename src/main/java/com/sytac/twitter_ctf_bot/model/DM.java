@@ -45,14 +45,19 @@ public class DM extends Raw implements ParsedJson{
 			twitter.dmOrMention(getUser_name(), getUser_Id(), p.BAD, p.PLEASE_FOLLOW);
 			return -1;
 		}
-		boolean ok = processAnswer(p.getAnswers(), answer[1].trim());
+		boolean ok = processAnswer(p.getAnswers(), answer);
 		LOGGER.info("New answer from participant: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
 		return twitter.dmOrMention(getUser_name(), getUser_Id(), ok  ? p.RIGHT_ANSWER : p.WRONG_ANSWER, p.PLEASE_FOLLOW); 
 	}
 
 	
-	 private boolean processAnswer(List<String> answers, String answer){
-		 return answers.contains(answer);
+	 private boolean processAnswer(List<String> correct, String[] answer){
+		 for(String sol : correct){
+			 for(String attempt : answer){
+				 if(attempt.toLowerCase().contains(sol)) return true;
+			 }
+		 }
+		 return false;
 	 }
 	
 }
