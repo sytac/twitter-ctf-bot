@@ -1,32 +1,33 @@
 package com.sytac.twitter_ctf_bot;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.log4j.Logger;
 
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bot Control class
  * @author Tonino Catapano - tonino.catapano@sytac.io
  * @since 1.0
  */
-public class Bot {
+public class Bot implements Closeable {
 	
-	
-	private static final Logger LOGGER = Logger.getLogger(Bot.class);
-	
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
+
 	private final Prop conf;
 	private final HosebirdClient stream;
 	private final BlockingQueue<String> inMessages;
-	private TwitterClient twitter;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private TwitterClient twitter;
 
 	public Bot(Prop configuration, HosebirdClient stream, BlockingQueue<String> inMessages) {
 		this.conf = configuration;
@@ -40,7 +41,13 @@ public class Bot {
 			stream.connect();
 			twitter = new TwitterClient(conf);
 			new ReadingThread(conf, stream, inMessages, outMessages).start();
-			process(outMessages);
+            executor.submit(() -> {
+                try {
+                    this.process(outMessages);
+                } catch (InterruptedException e) {
+                    LOGGER.error("Something iffy happened: {}", e.getMessage());
+                }
+            });
 		} catch(Exception e){
 			LOGGER.error(e.getMessage(),e);
 			LOGGER.info("Unexpected error encountered, closing the connection...");
@@ -48,8 +55,6 @@ public class Bot {
 		}
 	}
 
-
-	
 	private void process(BlockingQueue<ParsedJson> messages) throws InterruptedException {
 		while(!stream.isDone()) {
 			try {
@@ -59,6 +64,10 @@ public class Bot {
 			}
 		}
 	}
+
+    public void close(){
+        executor.shutdownNow();
+    }
 
 
 }

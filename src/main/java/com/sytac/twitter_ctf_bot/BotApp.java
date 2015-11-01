@@ -2,6 +2,7 @@ package com.sytac.twitter_ctf_bot;
 
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 public class BotApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BotApp.class);
+
+    private static final ConcurrentLinkedQueue<Runnable> shutdowns = new ConcurrentLinkedQueue<>();
 
     /**
      * Reads the configuration file location from the program arguments and starts the process
@@ -40,19 +43,34 @@ public class BotApp {
         /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
         BlockingQueue<String> queue = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
         HosebirdClient client = new HosebirdClient(configuration, queue);
-        new Bot(configuration, client, queue).run();
+        Bot bot = new Bot(configuration, client, queue);
+        bot.run();
 
         installShudtownHook(client);
+        installStopHandler(client::stop);
+        installStopHandler(bot::close);
+    }
+
+    private static void installStopHandler(Runnable handler) {
+        shutdowns.add(handler);
     }
 
     private static void installShudtownHook(HosebirdClient client) {
-        Runtime.getRuntime().addShutdownHook(new Thread(){ //catch the shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread() { //catch the shutdown hook
             @Override
-            public void run(){
+            public void run() {
                 LOGGER.info("Shutdown hook caught, closing the hosebirdClient");
                 client.stop();
             }
         });
+    }
+
+    /**
+     * Shuts down all dangling resources
+     */
+    public static void stop() {
+        shutdowns.stream()
+                .forEach(Runnable::run);
     }
 
     /**
@@ -88,5 +106,4 @@ public class BotApp {
     private static boolean fileExists(String path) {
         return new File(path).isFile();
     }
-
 }

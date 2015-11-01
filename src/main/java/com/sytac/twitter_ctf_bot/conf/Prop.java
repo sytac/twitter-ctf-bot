@@ -21,16 +21,16 @@ public class Prop {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Prop.class);
 
-	//get the keys and tokens from the properties
+	/** OAuth parameters */
 	public String consumerKey;
 	public String consumerSecret;
 	public String token;
 	public String secret;
 
-	
 	private List<String> ANSWERS;
 	public String PLEASE_FOLLOW;
-	/** User related parameters **/
+
+	/** Message templates */
 	public String WELCOME_PARTICIPANT;
 	public String COULDNOT_FOLLOW;
 	public String RIGHT_ANSWER;
@@ -40,7 +40,6 @@ public class Prop {
 	public String WELCOME_NO_FOLLOW;
 
 	public String FLAG_KEYWORD;
-
 
 	/** Endpoint-related parameters **/
 	public String TWITTER_DM_ENDPOINT;
@@ -60,10 +59,9 @@ public class Prop {
 
 		Properties properties = readProperties(path);
 		initProperties(properties);
-		
 	}
 
-	private void initProperties(Properties properties) {
+	protected void initProperties(Properties properties) {
 		consumerKey = properties.getProperty("consumerKey");
 		consumerSecret = properties.getProperty("consumerSecret");
 		token = properties.getProperty("token");
@@ -82,7 +80,6 @@ public class Prop {
 		PARTIC_ID_KEY = properties.getProperty("PARTIC_ID_KEY");
 		PARTIC_NAME_KEY = properties.getProperty("PARTIC_NAME_KEY");
 		SYTAC_USER_ID = Long.valueOf(properties.getProperty("SYTAC_USER_ID"));
-		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
 		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
 		ANSWERS = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
 		PLEASE_FOLLOW = properties.getProperty("PLEASE_FOLLOW");
