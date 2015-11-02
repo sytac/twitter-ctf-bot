@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.sytac.twitter_ctf_bot.client.HosebirdClient;
+import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
@@ -28,6 +29,7 @@ public class Bot implements Closeable {
 	private final BlockingQueue<String> inMessages;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private TwitterClient twitter;
+    private MongoDBClient mongoDBClient;
 
 	public Bot(Prop configuration, HosebirdClient stream, BlockingQueue<String> inMessages) {
 		this.conf = configuration;
@@ -40,6 +42,7 @@ public class Bot implements Closeable {
 			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(conf.QUEUE_BUFFER_SIZE);
 			stream.connect();
 			twitter = new TwitterClient(conf);
+			mongoDBClient = new MongoDBClient("localhost", 27017);
 			new ReadingThread(conf, stream, inMessages, outMessages).start();
             executor.submit(() -> {
                 try {
@@ -58,7 +61,7 @@ public class Bot implements Closeable {
 	private void process(BlockingQueue<ParsedJson> messages) throws InterruptedException {
 		while(!stream.isDone()) {
 			try {
-				messages.take().handleMe(conf, twitter);
+				messages.take().handleMe(conf, twitter, mongoDBClient);
 			} catch (IOException e) {
 				LOGGER.error(e.getMessage(),e);
 			}

@@ -29,7 +29,7 @@ public class JsonParser {
     public JsonParser(Prop config) {
         this.config = config;
     }
-
+    
     public ParsedJson parse(String toParse) {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
@@ -60,7 +60,7 @@ public class JsonParser {
     	final DM json = new DM(tweet, MSG_TYPE.DM);
         json.setUser_screenName(tweet.path("direct_message").path("sender").path("screen_name").getTextValue());
         json.setUser_name(tweet.path("direct_message").path("sender").path("name").getTextValue());
-        json.setUser_Id(tweet.path("direct_message").path("sender").path("id").getLongValue());
+        json.setUser_Id(String.valueOf(tweet.path("direct_message").path("sender").path("id").getLongValue()));
         json.setUser_url(tweet.path("direct_message").path("sender").path("url").getTextValue());
         json.setDm_string(tweet.path("direct_message").path("text").getTextValue());
         json.setUser_location(tweet.path("direct_message").path("sender").path("location").getTextValue());
@@ -75,7 +75,7 @@ public class JsonParser {
         final JsonNode participant_name = node.path("user").path("screen_name"); //present in case of a mention
 
         final Mention json = new Mention(node, MSG_TYPE.MENTION);
-        json.setUser_Id(participant.path("id").getLongValue());
+        json.setUser_Id(String.valueOf(participant.path("id").getLongValue()));
         json.setUser_name(participant_name.getTextValue());
         json.setUser_description(participant.path("description").getTextValue());
         json.setUser_screenName(participant.path("screen_name").getTextValue());
@@ -92,7 +92,7 @@ public class JsonParser {
         final Event json = new Event(node, MSG_TYPE.EVENT);
         
         json.setEventName(node.path("event").getTextValue());
-        json.setUser_Id(user.path("id").getLongValue());
+        json.setUser_Id(String.valueOf(user.path("id").getLongValue()));
         json.setUser_name(user.getTextValue());
         json.setUser_description(user.path("description").getTextValue());
         json.setUser_screenName(user.path("screen_name").getTextValue());

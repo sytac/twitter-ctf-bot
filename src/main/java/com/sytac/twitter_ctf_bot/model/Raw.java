@@ -1,38 +1,69 @@
 package com.sytac.twitter_ctf_bot.model;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.mongojack.ObjectId;
 
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 
-@JsonIgnoreProperties({"root"})
+//@JsonIgnoreProperties({"LOGGER", "mapper", "root" })
+@JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class Raw implements ParsedJson{
 
 	protected static final Logger LOGGER = Logger.getLogger(Raw.class);
 	
-	ObjectMapper mapper = new ObjectMapper();
-	
-	protected MSG_TYPE type;
+	protected ObjectMapper mapper;
+		
 	private JsonNode root;
 	
 	
-	private long user_Id;
-	private String user_name;
-	private String user_screenName;
-	private String user_location;
-	private String user_url;
-	private String user_description;
-	private long user_followerCount;
-	private String user_img;
+	@JsonProperty
+	protected MSG_TYPE type;
+	
+	@JsonProperty
+	private String user_Id;
+
+	@JsonProperty
+	private String user_name = "";
+	@JsonProperty
+	private String user_screenName = "";
+	@JsonProperty
+	private String user_location = "";
+	@JsonProperty
+	private String user_url = "";
+	@JsonProperty
+	private String user_description = "";
+	@JsonProperty
+	private long user_followerCount = 0;
+	@JsonProperty
+	private String user_img = "";
+	
+	@JsonProperty
+	private Date insertionDate = new Date();
 	
 	
-	
-	
-	
+	@ObjectId
+	public String _id;
+
+	public Date getInsertionDate() {
+		return insertionDate;
+	}
+
+	public void setInsertionDate(Date insertionDate) {
+		this.insertionDate = insertionDate;
+	}
+
 	public Raw(JsonNode rt){
-		root = rt;
+		this.root = rt;
+		this.mapper = new ObjectMapper();
+		mapper.enable(Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		mapper.enable(Feature.CAN_OVERRIDE_ACCESS_MODIFIERS);
 	}
 	
 	public MSG_TYPE getType(){
@@ -47,11 +78,11 @@ public abstract class Raw implements ParsedJson{
 		return root;
 	}
 
-	public long getUser_Id() {
+	public String getUser_Id() {
 		return user_Id;
 	}
 
-	public void setUser_Id(long user_Id) {
+	public void setUser_Id(String user_Id) {
 		this.user_Id = user_Id;
 	}
 

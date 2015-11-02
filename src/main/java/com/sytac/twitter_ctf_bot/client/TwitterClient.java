@@ -26,9 +26,9 @@ public class TwitterClient {
 		twitter4jClient = tf.getInstance();
 	}
 
-	public boolean followParticipant(long idParticipant){
+	public boolean followParticipant(String idParticipant){
 		try {
-			twitter4jClient.createFriendship(idParticipant);
+			twitter4jClient.createFriendship(Long.valueOf((idParticipant)));
 		} catch (TwitterException e) {
 			LOGGER.error(e.getMessage(), e);
 			return false;
@@ -42,7 +42,7 @@ public class TwitterClient {
 	  * @param message
 	  * 
 	  */
-	 public boolean dm(String userName, long userId, String message){
+	 public boolean dm(String userName, String userId, String message){
 		 try {
 			 DirectMessage msg = twitter4jClient.sendDirectMessage(userId, message);
 			 LOGGER.info("Sent: " + msg.getText() + " to @" + msg.getRecipientScreenName());
@@ -72,7 +72,7 @@ public class TwitterClient {
 	  * @param mentionMessage
 	  * @return 0 if the pm is sent, 1 if could not send pm but succeeded to send a mention, -1 if nor the pm and the mention are sent
 	  */
-	public byte dmOrMention(String userName, long userId, String message, String mentionMessage) {
+	public byte dmOrMention(String userName, String userId, String message, String mentionMessage) {
 		return (byte) (dm(userName, userId, message) ? 0 : (mention(String.format(mentionMessage, userName)) ? 1 : -1));
 	}
 	

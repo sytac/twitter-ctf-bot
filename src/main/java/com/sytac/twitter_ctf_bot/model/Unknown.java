@@ -6,13 +6,14 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.JsonMappingException;
 
+import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 
 public class Unknown extends Raw implements ParsedJson{
 
-	public Unknown(JsonNode rt) {
+	public Unknown(JsonNode rt, MongoDBClient mongo ) {
 		super(rt);
 	}
 	
@@ -22,7 +23,7 @@ public class Unknown extends Raw implements ParsedJson{
 	}
 
 	@Override
-	public byte handleMe(Prop p, TwitterClient twitter)
+	public byte handleMe(Prop p, TwitterClient twitter, MongoDBClient mongo)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		LOGGER.info("A #ctf non-related message received, skipping it.");
 		return -1;

@@ -7,6 +7,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.JsonMappingException;
 
+import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
@@ -38,7 +39,7 @@ public class DM extends Raw implements ParsedJson{
 	}
 
 	@Override
-	public byte handleMe(Prop p, TwitterClient twitter) throws JsonGenerationException, JsonMappingException, IOException {
+	public byte handleMe(Prop p, TwitterClient twitter, MongoDBClient mongo) throws JsonGenerationException, JsonMappingException, IOException {
 		String answer[] = dm_string.toLowerCase().split(p.FLAG_KEYWORD);
 		if(answer.length < 2){
 			LOGGER.warn("The JSON received isn't a #ctf well formed message: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));

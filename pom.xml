@@ -62,6 +62,22 @@
             <artifactId>unirest-java</artifactId>
             <version>1.4.7</version>
         </dependency>
+        
+        
+        <!--  MONGODB -->
+        <dependency>
+		  <groupId>org.mongodb</groupId>
+		  <artifactId>mongo-java-driver</artifactId>
+		  <version>2.10.1</version>
+    	</dependency>
+
+
+		<!--  MONGODB-JACKSON CONVERTER-->
+		<dependency>
+			<groupId>org.mongojack</groupId>
+			<artifactId>mongojack</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 
         <!-- TEST SCOPE -->
         <dependency>
