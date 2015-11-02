@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
@@ -77,12 +78,13 @@ public class Mention extends Raw implements ParsedJson{
 			default: mess = "Could not handle the new participant: "; break;
 		}
 		LOGGER.info(mess + getUser_name());
-		saveNewMentionToDB(mongo);	
+		storeNewMentionToDB(mongo);
+		//storeParticipant(mongo);
 		return 0;
 	}
 	
 	
-	private boolean saveNewMentionToDB(MongoDBClient mongo){
+	private boolean storeNewMentionToDB(MongoDBClient mongo){
 		try{
 			final DBCollection mentions = mongo.getOrCreateCollection("mention", true);
 			final JacksonDBCollection<Mention, String> coll = JacksonDBCollection.wrap(mentions, Mention.class, String.class);
@@ -93,6 +95,36 @@ public class Mention extends Raw implements ParsedJson{
 			final WriteResult<Mention, String> result = coll.insert(toStore);
 			//final ObjectId oid = (ObjectId) result.getDbObject().get("_id");
 			LOGGER.info("Object correctly stored into MongoDB with id: " + result.getSavedId());
+			//final Mention savedObject = coll.findOneById(result.getSavedId());
+		}catch(Exception e){
+			LOGGER.error("error",e);
+			return false;
+		}
+		return true;
+	}
+	
+	
+	private boolean storeParticipant(MongoDBClient mongo){
+		try{
+			final DBCollection mentions = mongo.getOrCreateCollection("participant", true);
+			final JacksonDBCollection<Participant, String> coll = JacksonDBCollection.wrap(mentions, Participant.class, String.class);
+			
+			final Participant participant = new Participant(getUser_Id(), getUser_name(), getUser_description(), 
+					getUser_screenName(), getUser_location(), getUser_url(),
+					getUser_followerCount(), getUser_img(), getMentionText());
+			
+			final Participant result = coll.findAndModify(			
+			new BasicDBObject("user_id", getUser_Id()), //query
+			null, //the fields I want back: null specify to return ALL THE FIELDS
+			null, //sort CRITERIA
+			false, //remove the document after modifying it
+			new BasicDBObject("$inc", new BasicDBObject("counter", "")), //the update query I want to execute
+			true, //true indicate to return the object AFTER the UPDATE in the last row (false make it return before)
+			true // UPSERT: if the document does not exist then create one.
+			);
+			
+			//final ObjectId oid = (ObjectId) result.getDbObject().get("_id");
+			//LOGGER.info("Object correctly stored into MongoDB with id: " + result.getSavedId());
 			//final Mention savedObject = coll.findOneById(result.getSavedId());
 		}catch(Exception e){
 			LOGGER.error("error",e);

@@ -45,18 +45,18 @@ public abstract class Raw implements ParsedJson{
 	private String user_img = "";
 	
 	@JsonProperty
-	private Date insertionDate = new Date();
+	private Date creationDate = new Date();
 	
 	
 	@ObjectId
 	public String _id;
 
-	public Date getInsertionDate() {
-		return insertionDate;
+	public Date getCreationDate() {
+		return creationDate;
 	}
 
-	public void setInsertionDate(Date insertionDate) {
-		this.insertionDate = insertionDate;
+	public void setInsertionDate(Date creationDate) {
+		this.creationDate = creationDate;
 	}
 
 	public Raw(JsonNode rt){
