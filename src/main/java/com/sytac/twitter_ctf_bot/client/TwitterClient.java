@@ -44,7 +44,7 @@ public class TwitterClient {
 	  */
 	 public boolean dm(String userName, String userId, String message){
 		 try {
-			 DirectMessage msg = twitter4jClient.sendDirectMessage(userId, message);
+			 DirectMessage msg = twitter4jClient.sendDirectMessage(Long.valueOf(userId), message);
 			 LOGGER.info("Sent: " + msg.getText() + " to @" + msg.getRecipientScreenName());
 			 return true;
 		 } catch (TwitterException e) {

@@ -14,15 +14,27 @@ import com.sytac.twitter_ctf_bot.conf.Prop;
 public class Participant extends Raw{
 
 	@JsonProperty
-	boolean[] foundFlags = new boolean[6];
+	private boolean[] foundFlags = new boolean[6];
 	
+	public boolean[] getFoundFlags() {
+		return foundFlags;
+	}
+
+	public void setFoundFlags(boolean[] foundFlags) {
+		this.foundFlags = foundFlags;
+	}
+
 	public Participant(JsonNode rt) {
 		super(rt);
+	}
+	
+	public Participant() {
+		super(null);
 	}
 
 	public Participant(String user_Id, String user_name, String user_description, 
 			String user_screenName, String user_location, String user_url, 
-			Long user_followerCount, String user_img, String mentionText){
+			Long user_followerCount, String user_img){
 		super(null);	
 		this.setUser_Id(user_Id);
 		this.setUser_name(user_name);

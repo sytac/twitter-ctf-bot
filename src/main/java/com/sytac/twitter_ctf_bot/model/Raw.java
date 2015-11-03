@@ -12,8 +12,8 @@ import org.mongojack.ObjectId;
 
 import com.sytac.twitter_ctf_bot.model.enumeration.MSG_TYPE;
 
-//@JsonIgnoreProperties({"LOGGER", "mapper", "root" })
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties({"LOGGER", "mapper", "root" })
+//@JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class Raw implements ParsedJson{
 
 	protected static final Logger LOGGER = Logger.getLogger(Raw.class);
@@ -25,6 +25,9 @@ public abstract class Raw implements ParsedJson{
 	
 	@JsonProperty
 	protected MSG_TYPE type;
+	
+	@ObjectId
+	public String _id;
 	
 	@JsonProperty
 	private String user_Id;
@@ -45,18 +48,17 @@ public abstract class Raw implements ParsedJson{
 	private String user_img = "";
 	
 	@JsonProperty
-	private Date creationDate = new Date();
+	private Date lastUpdate = new Date();
 	
 	
-	@ObjectId
-	public String _id;
 
-	public Date getCreationDate() {
-		return creationDate;
+
+	public Date getLastUpdate() {
+		return lastUpdate;
 	}
 
-	public void setInsertionDate(Date creationDate) {
-		this.creationDate = creationDate;
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
 	}
 
 	public Raw(JsonNode rt){

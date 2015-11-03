@@ -6,7 +6,10 @@ import java.util.List;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.mongojack.JacksonDBCollection;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
@@ -46,19 +49,45 @@ public class DM extends Raw implements ParsedJson{
 			twitter.dmOrMention(getUser_name(), getUser_Id(), p.BAD, p.PLEASE_FOLLOW);
 			return -1;
 		}
-		boolean ok = processAnswer(p.getAnswers(), answer);
+		byte foundAnswer = processAnswer(p.getAnswers(), answer);
 		LOGGER.info("New answer from participant: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
-		return twitter.dmOrMention(getUser_name(), getUser_Id(), ok  ? p.RIGHT_ANSWER : p.WRONG_ANSWER, p.PLEASE_FOLLOW); 
+		if(foundAnswer != -1){
+			updateParticipantAnswer(foundAnswer, getUser_Id(), mongo);
+		}
+		return twitter.dmOrMention(getUser_name(), getUser_Id(), foundAnswer != -1  ? p.RIGHT_ANSWER : p.WRONG_ANSWER, p.PLEASE_FOLLOW);
 	}
 
 	
-	 private boolean processAnswer(List<String> correct, String[] answer){
-		 for(String sol : correct){
+	 private byte processAnswer(List<String> correct, String[] answer){
+		 for(byte i=0; i < correct.size(); i++){
 			 for(String attempt : answer){
-				 if(attempt.toLowerCase().contains(sol)) return true;
+				 if(attempt.toLowerCase().contains(correct.get(i))) return i;
 			 }
 		 }
-		 return false;
+		 return -1;
 	 }
+	 
+	 
+	 
+		private boolean updateParticipantAnswer(byte quizNr, String user_Id, MongoDBClient mongo){
+			try{
+				final DBCollection competitionColl = mongo.getOrCreateCollection("participant");
+				final JacksonDBCollection<Participant, String> coll = JacksonDBCollection.wrap(competitionColl, Participant.class, String.class);		
+				final Participant result = coll.findAndModify(			
+					new BasicDBObject("user_Id", user_Id), //query
+					null, //the fields I want back: null specify to return ALL THE FIELDS
+					null, //sort CRITERIA
+					false, //remove the document after modifying it
+					new BasicDBObject("$set", new BasicDBObject("foundFlags." + quizNr, true)), //the update query I want to execute
+					true, //true indicate to return the object AFTER the UPDATE in the last row (false make it return before)
+					true // UPSERT: if the document does not exist then create one.
+				);
+				System.out.println();
+			}catch(Exception e){
+				LOGGER.error("error",e);
+				return false;
+			}
+			return true;
+		}
 	
 }

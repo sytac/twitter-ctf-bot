@@ -52,10 +52,8 @@ public class MongoDBClient {
 	}
 	
 	
-	public DBCollection getOrCreateCollection(String collName, boolean drop){
-		DBCollection coll = getDB().getCollection(collName);
-		if(drop) coll.drop();
-		return coll;
+	public DBCollection getOrCreateCollection(String collName){
+		return getDB().getCollection(collName);
 	}
 	
 	public void printAllCollection(DBCollection collection){
@@ -69,6 +67,16 @@ public class MongoDBClient {
     		cur.close();
     	}
     }
+	
+	public boolean dropCollection(String collName){
+		try{
+			getDB().getCollection(collName).drop();
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+
+	}
 
 	public boolean insertObjIntoCollection(DBCollection coll, DBObject o){
 		WriteResult a = coll.insert(o);
