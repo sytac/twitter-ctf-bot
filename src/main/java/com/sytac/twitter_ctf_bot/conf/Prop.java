@@ -117,6 +117,11 @@ public class Prop {
 	}
 	
 	private String[] splitAnswers(String answers){
-		return answers.split(";");
+		try{
+			return answers.split(";");
+		}catch(Exception e){
+			LOGGER.error("Error while splitting the answers => csv = ';' ");
+			return null;
+		}
 	}
 }

@@ -56,7 +56,7 @@ public class DM extends Raw implements ParsedJson{
 			LOGGER.warn("The JSON received isn't a #ctf well formed message: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
 			twitter.dmOrMention(getUser_name(), getUser_Id(), p.BAD, p.PLEASE_FOLLOW);
 			return -1;
-		}
+		}		
 		LOGGER.info("New answer from participant: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
 		final byte foundAnswer = processAnswer(p.getAnswers(), answer); // foundAnswer == -1 no , foundAnswer != 1 = found answer for the quiz
 		if(foundAnswer != -1){
@@ -71,6 +71,15 @@ public class DM extends Raw implements ParsedJson{
 		return twitter.dmOrMention(getUser_name(), getUser_Id(), p.WRONG_ANSWER, p.PLEASE_FOLLOW);
 	}
 
+	/**
+	 * Check if in the DM there is a valid good answer to one of the quiz
+	 * @param correct
+	 * @param answer
+	 * @return -1 if no good answer were found otherwise a number corresponding to 
+	 *         the nr of quiz answered correctly (0 = first quiz). Nb if multiple good 
+	 *         answers were provided, only the first one will be recognized
+	 *         (see instructions at http://sytac.io/capture-the-flag.html)
+	 */
 	private byte processAnswer(List<String> correct, String[] answer){
 		 for(byte i=0; i < correct.size(); i++){
 			 for(String attempt : answer){

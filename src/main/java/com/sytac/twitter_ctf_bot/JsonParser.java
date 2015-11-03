@@ -132,7 +132,8 @@ public class JsonParser {
                 isWithoutDelete(tweet) &&
                 containsText(tweet) &&
                 containsCTFHashTag(tweet) && //if mention text contains the "#ctf" flag
-                isNotFromSelf(tweet);
+                isNotFromSelf(tweet) &&
+                isNotRetweet(tweet);
     }
 
     private boolean isNotFromSelf(JsonNode tweet) {
@@ -166,5 +167,9 @@ public class JsonParser {
 
     private boolean isWithoutEvent(JsonNode tweet) {
         return tweet.path("event").isMissingNode();
+    }
+    
+    private boolean isNotRetweet(JsonNode tweet){
+    	return tweet.path("retweeted_status").isMissingNode();
     }
 }

@@ -14,6 +14,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.sytac.twitter_ctf_bot.model.DM;
+import com.sytac.twitter_ctf_bot.model.Event;
 import com.sytac.twitter_ctf_bot.model.Mention;
 import com.sytac.twitter_ctf_bot.model.Participant;
 
@@ -21,23 +22,19 @@ public class MongoDBClient {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBClient.class);
 	
-	private MongoClient client;
-	
 	private final static String DB_NAME = "bot";
-	
 	private final static String DM_COLL_NAME = "dm";
-	
 	private final static String MENTION_COLL_NAME = "mention";
-	
 	private final static String EVENT_COLL_NAME = "event";
-	
 	private final static String PARTICIP_COLL_NAME = "participant";
+	
+	private MongoClient client;
 	
 	public MongoDBClient(String url, int port){
 		try {
 			setClient(new MongoClient(url, port));
 		} catch (UnknownHostException e) {
-			LOGGER.error("error connecting mongodb",e);
+			LOGGER.error("error while connecting to Mongo",e);
 		}
 	}
 
@@ -126,6 +123,7 @@ public class MongoDBClient {
 		}	
 	}
 	
+	
 	public boolean storeDM(DM dm){
 		try{
 			final DBCollection dms = getOrCreateCollection(DM_COLL_NAME);
@@ -135,6 +133,20 @@ public class MongoDBClient {
 			LOGGER.info("DM correctly stored into the database with id: " + result.getSavedId());
 		}catch(Exception e){
 			LOGGER.error("error",e);
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean storeEvent(Event e){
+		try{
+			final DBCollection dms = getOrCreateCollection(EVENT_COLL_NAME);
+			final JacksonDBCollection<Event, String> coll = JacksonDBCollection.wrap(dms, Event.class, String.class);
+			final Event toStore = new Event(e.getUser_Id(), e.getUser_name(), e.getEventName());
+			final WriteResult<Event, String> result = coll.insert(toStore);
+			LOGGER.info("DM correctly stored into the database with id: " + result.getSavedId());
+		}catch(Exception ex){
+			LOGGER.error("error", ex);
 			return false;
 		}
 		return true;

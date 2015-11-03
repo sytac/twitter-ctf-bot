@@ -35,11 +35,19 @@ public class Event extends Raw implements ParsedJson{
 		super(rt);
 		super.type = msg_type;
 	}
+	
+	public Event(String user_Id, String user_name, String eventName){
+		super();
+		setUser_Id(user_Id);
+		setUser_name(user_name);
+		setEventName(eventName);
+	}
 
 	@Override
 	public byte handleMe(Prop p, TwitterClient twitter, MongoDBClient mongo)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		LOGGER.info("New event message received: \n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this));
+		
 		return 0;
 	}
 
