@@ -48,7 +48,7 @@ public class TwitterClient {
 			 LOGGER.info("Sent: " + msg.getText() + " to @" + msg.getRecipientScreenName());
 			 return true;
 		 } catch (TwitterException e) {
-			 LOGGER.error("Error during the DM to the partecipant " + userId + ": TWITTER4J exception, ", e);
+			 LOGGER.error("Error during the DM to the partecipant @" + userName + ": TWITTER4J exception, ", e);
 			return false;
 		 }	 
 	 }
@@ -81,5 +81,7 @@ public class TwitterClient {
 	public byte dmOrMention(String userName, String userId, String message, String mentionMessage) {
 		return (byte) (dm(userName, userId, message) ? 0 : (mention(String.format(mentionMessage, userName)) ? 1 : -1));
 	}
+	
+
 	
 }

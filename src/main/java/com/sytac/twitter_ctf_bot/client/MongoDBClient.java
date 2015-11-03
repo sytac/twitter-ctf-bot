@@ -110,7 +110,7 @@ public class MongoDBClient {
 				null, //the fields I want back: null specify to return ALL THE FIELDS
 				null, //sort CRITERIA
 				false, //remove the document after modifying it
-				new BasicDBObject("$set", new BasicDBObject("foundFlags." + quizNr, true)).append("$set", new BasicDBObject("lastUpdate", new Date())), //the update query I want to execute
+				new BasicDBObject("$set", new BasicDBObject("foundFlags." + String.valueOf(quizNr), true).append("lastUpdate", new Date())), //the update query I want to execute
 				true, //true indicate to return the object AFTER the UPDATE in the last row (false make it return before)
 				true // UPSERT: if the document does not exist then create one.
 			);
