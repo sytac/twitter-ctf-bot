@@ -40,7 +40,7 @@ public class TwitterClient {
 	  * Send a private message to the participant 
 	  * @param idUser
 	  * @param message
-	  * 
+	  * @return true if DM sent succeeded, false otherwise
 	  */
 	 public boolean dm(String userName, String userId, String message){
 		 try {
@@ -53,6 +53,12 @@ public class TwitterClient {
 		 }	 
 	 }
 	 
+	 
+	 /**
+	  * Send a mention (formely update a status)
+	  * @param mentionMessage
+	  * @return true if mention succeeded, false otherwise
+	  */
 	 public boolean mention(String mentionMessage){
 		 try {
 			twitter4jClient.updateStatus(mentionMessage);

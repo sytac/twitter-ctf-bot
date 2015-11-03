@@ -53,6 +53,10 @@ public class Participant extends Raw{
 		return 0;
 	}
 	
+	/**
+	 * Check if the foundFlags array contains all true values: the Participant is a winner
+	 * @return true if foundFlags contains all true values, false otherwise
+	 */
 	public boolean checkWinner(){
 		boolean winner = true;
 		for(boolean x : foundFlags)
