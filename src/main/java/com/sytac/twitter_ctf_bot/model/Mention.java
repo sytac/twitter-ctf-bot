@@ -9,8 +9,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.MongoException;
 import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
@@ -117,9 +117,13 @@ public class Mention extends Raw implements ParsedJson{
 			Participant participant = new Participant(getUser_Id(), getUser_name(), getUser_description(), 
 					getUser_screenName(), getUser_location(), getUser_url(),
 					getUser_followerCount(), getUser_img());
-
-			final WriteResult<Participant, String> res = j_participantsColl.insert(participant);
-			
+			try{
+				final WriteResult<Participant, String> res = j_participantsColl.insert(participant);
+			}catch(MongoException e){
+				LOGGER.info("Participant \'@"+getUser_name()+"\' already in the competition, not stored");
+				return false;
+			}
+			LOGGER.info("new Participant \'@"+getUser_name()+"\' stored in db and running for the competition.");
 			/*final Participant result = j_participantsColl.findAndModify(			
 				new BasicDBObject("user_Id", getUser_Id()), //query
 				null, //the fields I want back: null specify to return ALL THE FIELDS
@@ -129,14 +133,7 @@ public class Mention extends Raw implements ParsedJson{
 				true, //true indicate to return the object AFTER the UPDATE in the last row (false make it return before)
 				true // UPSERT: if the document does not exist then create one.
 			);*/
-			
-			
 
-			
-
-			
-			
-			System.out.println();
 			
 			//final ObjectId oid = (ObjectId) result.getDbObject().get("_id");
 			//LOGGER.info("Object correctly stored into MongoDB with id: " + result.getSavedId());

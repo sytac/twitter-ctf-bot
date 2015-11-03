@@ -53,6 +53,11 @@ public class Participant extends Raw{
 		return 0;
 	}
 	
-	
+	public boolean checkWinner(){
+		boolean winner = true;
+		for(boolean x : foundFlags)
+			winner &= x; 
+		return winner;
+	}
 
 }
