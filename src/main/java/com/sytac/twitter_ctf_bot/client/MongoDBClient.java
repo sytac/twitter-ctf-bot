@@ -1,16 +1,23 @@
 package com.sytac.twitter_ctf_bot.client;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.sytac.twitter_ctf_bot.model.DM;
@@ -152,5 +159,27 @@ public class MongoDBClient {
 		return true;
 	}
 	
+	/**
+	 *  Return the leaderboard via aggregation framework
+	 */
+	public String leaderBoard(){
+		final DBCollection participants = getOrCreateCollection(PARTICIP_COLL_NAME);
+		DBObject unwind = new BasicDBObject("$unwind", "$foundFlags");
+		DBObject match = new BasicDBObject("$match", new BasicDBObject("foundFlags", true));
+		DBObject group = new BasicDBObject("$group", new BasicDBObject("_id", new BasicDBObject("user_name", "$user_name").append("lastUpdate", "$lastUpdate")).append("goodAnswers", new BasicDBObject("$sum", 1)));
+		DBObject sort = new BasicDBObject("$sort", new BasicDBObject("goodAnswers", -1).append("_id.lastUpdate", 1));
+		AggregationOutput output = participants.aggregate(unwind, match, group, sort);
+		ObjectMapper mapper = new ObjectMapper();
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:SS");
+		df.setTimeZone(TimeZone.getTimeZone("GMT+1"));
+		mapper.setDateFormat(df);
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output.results());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "An error occured, please try again later.";
+		}
+	}
+
 	
 }

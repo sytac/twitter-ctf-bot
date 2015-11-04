@@ -5,20 +5,26 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 import com.sun.net.httpserver.*;
+import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 
 /**
  * A simple rest controller for future use
  */
 @SuppressWarnings("restriction")
 public class RestControllerTh extends Thread{
-	
-	public RestControllerTh(){}
 
-	public void start(){
+
+	private static MongoDBClient mongo;
+	
+	public RestControllerTh(MongoDBClient m){
+		mongo = m;
+	}
+
+	public void run(){
 		HttpServer server;
 		try {
-			server = HttpServer.create(new InetSocketAddress(8000), 0);
-	        server.createContext("/test", new MyHandler());
+			server = HttpServer.create(new InetSocketAddress(8080), 0);
+	        server.createContext("/api/leaderboard.json", new MyHandler());
 	        server.setExecutor(null); // creates a default executor
 	        server.start();
 		} catch (IOException e){}
@@ -29,7 +35,9 @@ public class RestControllerTh extends Thread{
 	static class MyHandler implements HttpHandler {
 		@Override
         public void handle(HttpExchange t) throws IOException {
-            String response = "Ok";
+            String response = mongo.leaderBoard();
+            Headers h = t.getResponseHeaders();
+            h.set("Content-Type", "application/json");
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());

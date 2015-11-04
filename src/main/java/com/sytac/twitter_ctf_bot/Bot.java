@@ -14,6 +14,7 @@ import com.sytac.twitter_ctf_bot.client.HosebirdClient;
 import com.sytac.twitter_ctf_bot.client.MongoDBClient;
 import com.sytac.twitter_ctf_bot.client.TwitterClient;
 import com.sytac.twitter_ctf_bot.conf.Prop;
+import com.sytac.twitter_ctf_bot.controller.RestControllerTh;
 import com.sytac.twitter_ctf_bot.model.ParsedJson;
 
 /**
@@ -45,6 +46,7 @@ public class Bot implements Closeable {
 			twitter = new TwitterClient(conf);
 			mongoDBClient = new MongoDBClient("localhost", 27017);
 			new ReadingThread(conf, stream, inMessages, outMessages).start();
+			new RestControllerTh(mongoDBClient).start();
             executor.submit(() -> {
                 try {
                     this.process(outMessages);
