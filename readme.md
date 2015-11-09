@@ -16,7 +16,6 @@ Manages the whole competition via Twitter, namely:
 Fetching of all the user-related messages via [HBC](https://github.com/twitter/hbc) and the twitter [Streaming API](https://dev.twitter.com/streaming/overview).
 The [REST-API](https://dev.twitter.com/rest/public) is accessed via [twitter4j](https://github.com/yusuke/twitter4j/).
 (DMs, follows and tweets)
-# Status
 
 ## Install Requirements
 * JDK 8
