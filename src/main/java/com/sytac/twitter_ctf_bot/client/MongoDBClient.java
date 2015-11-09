@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.TimeZone;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -17,6 +18,7 @@ import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -181,5 +183,20 @@ public class MongoDBClient {
 		}
 	}
 
+	public String participants(){
+		final DBCollection participants = getOrCreateCollection(PARTICIP_COLL_NAME);
+		DBObject query = new BasicDBObject();
+		ObjectMapper mapper = new ObjectMapper();
+		DBCursor output = participants.find(query, new BasicDBObject("_id",false).append("user_Id", false).append("user_screenName",false).append("user_location", false).append("foundFlags", false).append("lastUpdate", false).append("user_followerCount", false).append("user_url", false).append("user_img", false).append("user_url", false).append("user_description", false));	
+		StringBuilder x = new StringBuilder();
+		Iterator<DBObject> y = output.iterator();
+		x.append("<html style=\"font-family: Verdana, Geneva, sans-serif;\"><body bgcolor=\"#e77f24\"><ul>");
+		while(y.hasNext()){
+			x.append("<li> " + y.next().toString() + " </li>");
+		}
+		x.append("</ul></body></html>");
+		return x.toString();
+	}
+	
 	
 }
