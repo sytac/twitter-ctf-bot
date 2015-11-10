@@ -22,7 +22,7 @@ The [REST-API](https://dev.twitter.com/rest/public) is accessed via [twitter4j](
 * Maven 3.x
 
 ## Usage
-1. Create a config file like the example here, specifying your application tokens.
+1. Create a config file like the example [here](https://github.com/sytac/twitter-ctf-bot/raw/master/src/examples/config.properties), specifying your application tokens.
 2. launch `MVN package` to create the uber jar
 3. from the terminal:    
     `java -jar twitter-ctf-bot-1.0.0-SNAPSHOT.jar path/to/properties.file`
