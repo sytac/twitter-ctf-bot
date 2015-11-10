@@ -46,7 +46,7 @@ public class Bot implements Closeable {
 			twitter = new TwitterClient(conf);
 			mongoDBClient = new MongoDBClient("localhost", 27017);
 			new ReadingThread(conf, stream, inMessages, outMessages).start();
-			new RestControllerTh(mongoDBClient).start();
+			new RestControllerTh(mongoDBClient, twitter).start();
             executor.submit(() -> {
                 try {
                     this.process(outMessages);

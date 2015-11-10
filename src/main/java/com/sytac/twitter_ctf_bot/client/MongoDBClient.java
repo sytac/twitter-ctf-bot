@@ -186,7 +186,6 @@ public class MongoDBClient {
 	public String participants(){
 		final DBCollection participants = getOrCreateCollection(PARTICIP_COLL_NAME);
 		DBObject query = new BasicDBObject();
-		ObjectMapper mapper = new ObjectMapper();
 		DBCursor output = participants.find(query, new BasicDBObject("_id",false).append("user_Id", false).append("user_screenName",false).append("user_location", false).append("foundFlags", false).append("lastUpdate", false).append("user_followerCount", false).append("user_url", false).append("user_img", false).append("user_url", false).append("user_description", false));	
 		StringBuilder x = new StringBuilder();
 		Iterator<DBObject> y = output.iterator();
