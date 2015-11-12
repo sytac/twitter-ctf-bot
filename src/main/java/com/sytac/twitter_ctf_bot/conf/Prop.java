@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -48,8 +49,8 @@ public class Prop {
 	public String PARTIC_ID_KEY ;
 	public String PARTIC_NAME_KEY ;
 
-	public long SYTAC_USER_ID;
-	public int QUEUE_BUFFER_SIZE;
+	public Long SYTAC_USER_ID;
+	public Long QUEUE_BUFFER_SIZE;
 	
 	public  Prop(String path) {
 		if(noFileAtLocation(path)) {
@@ -66,12 +67,12 @@ public class Prop {
 		consumerSecret = properties.getProperty("consumerSecret");
 		token = properties.getProperty("token");
 		secret = properties.getProperty("secret");
-		WELCOME_PARTICIPANT  = properties.getProperty("WELCOME_PARTICIPANT");
-		COULDNOT_FOLLOW   = properties.getProperty("COULDNOT_FOLLOW");
-		RIGHT_ANSWER  = properties.getProperty("RIGHT_ANSWER");
-		WRONG_ANSWER  = properties.getProperty("WRONG_ANSWER");
-		WINNER  = properties.getProperty("WINNER");
-		BAD  = properties.getProperty("BAD");
+		WELCOME_PARTICIPANT = properties.getProperty("WELCOME_PARTICIPANT");
+		COULDNOT_FOLLOW = properties.getProperty("COULDNOT_FOLLOW");
+		RIGHT_ANSWER = properties.getProperty("RIGHT_ANSWER");
+		WRONG_ANSWER = properties.getProperty("WRONG_ANSWER");
+		WINNER = properties.getProperty("WINNER");
+		BAD = properties.getProperty("BAD");
 		WELCOME_NO_FOLLOW = properties.getProperty("WELCOME_NO_FOLLOW");
 		FLAG_KEYWORD = properties.getProperty("FLAG_KEYWORD");
 		TWITTER_DM_ENDPOINT = properties.getProperty("TWITTER_DM_ENDPOINT");
@@ -79,10 +80,28 @@ public class Prop {
 		FLAG_KEY = properties.getProperty("FLAG_KEY");
 		PARTIC_ID_KEY = properties.getProperty("PARTIC_ID_KEY");
 		PARTIC_NAME_KEY = properties.getProperty("PARTIC_NAME_KEY");
-		SYTAC_USER_ID = Long.valueOf(properties.getProperty("SYTAC_USER_ID"));
-		QUEUE_BUFFER_SIZE = Integer.valueOf(properties.getProperty("QUEUE_BUFFER_SIZE"));
-		ANSWERS = Arrays.asList(splitAnswers(properties.getProperty("ANSWERS")));
+		SYTAC_USER_ID = getLongProperty(properties, "SYTAC_USER_ID");
+		QUEUE_BUFFER_SIZE = getLongProperty(properties, "QUEUE_BUFFER_SIZE");
+		ANSWERS = getArrayProperty(properties, "ANSWERS");
 		PLEASE_FOLLOW = properties.getProperty("PLEASE_FOLLOW");
+	}
+
+	private List<String> getArrayProperty(Properties properties, String key) {
+		String value = properties.getProperty(key);
+		if(value == null) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(splitAnswers(value));
+	}
+
+	private Long getLongProperty(Properties properties, String key) {
+		String value = properties.getProperty(key);
+		try {
+			return Long.valueOf(value);
+		} catch (Exception e) {
+			LOGGER.warn("Wrong numeric property '{}' for key '{}'", value, key);
+			return -1l;
+		}
 	}
 
 	private Properties readProperties(String path) {
@@ -117,11 +136,6 @@ public class Prop {
 	}
 	
 	private String[] splitAnswers(String answers){
-		try{
-			return answers.split(";");
-		}catch(Exception e){
-			LOGGER.error("Error while splitting the answers => csv = ';' ");
-			return null;
-		}
+		return answers.split(";");
 	}
 }

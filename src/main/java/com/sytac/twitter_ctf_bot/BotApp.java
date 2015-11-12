@@ -41,7 +41,7 @@ public class BotApp {
     private static void runBot(String configFile) {
         Prop configuration = new Prop(configFile);
         /** Set up the blocking queue for hbc: size based on expected TPS of your stream */
-        BlockingQueue<String> queue = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE);
+        BlockingQueue<String> queue = new LinkedBlockingQueue<>(configuration.QUEUE_BUFFER_SIZE.intValue());
         HosebirdClient client = new HosebirdClient(configuration, queue);
         Bot bot = new Bot(configuration, client, queue);
         bot.run();

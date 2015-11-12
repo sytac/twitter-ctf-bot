@@ -41,7 +41,7 @@ public class Bot implements Closeable {
 
 	public void run(){
 		try {
-			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(conf.QUEUE_BUFFER_SIZE);
+			BlockingQueue<ParsedJson> outMessages = new LinkedBlockingQueue<>(conf.QUEUE_BUFFER_SIZE.intValue());
 			stream.connect();
 			twitter = new TwitterClient(conf);
 			mongoDBClient = new MongoDBClient("localhost", 27017);

@@ -15,10 +15,10 @@ public class ConfigurationTest {
 
     @Test
     public void canLoadProperties() throws URISyntaxException, IOException {
-        String path = Utils.findClassPathLocation("test-configuration.properties");
+        String path = Utils.findClassPathLocation("test-configuration.properties").get();
         Prop configuration = new Prop(path);
 
-        assertEquals("Couldn't read the configuration properly", "secret", configuration.secret);
+        assertEquals("Couldn't read the configuration properly", "foobar", configuration.secret);
     }
 
 }

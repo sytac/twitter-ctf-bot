@@ -19,7 +19,7 @@ public class BotAppTest {
 
     @Test
     public void main_happyFlow() throws URISyntaxException, InterruptedException {
-        String path = Utils.findClassPathLocation("test-configuration.properties");
+        String path = Utils.findClassPathLocation("test-configuration.properties").get();
         BotApp.main(new String[]{path});
 		Thread.sleep(1000l); // no exceptions -> we're good!
 		BotApp.stop();
