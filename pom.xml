@@ -72,7 +72,7 @@
     	</dependency>
 
 
-		<!--  MONGODB-JACKSON CONVERTER-->
+		<!--  MONGODB-JACKSON MAPPER-->
 		<dependency>
 			<groupId>org.mongojack</groupId>
 			<artifactId>mongojack</artifactId>
